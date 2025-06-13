@@ -1,0 +1,161 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  EMPLOYER
+  ADMIN
+}
+
+enum ApplicationStatus {
+  PENDING
+  VIEWED
+  ACCEPTED
+  REJECTED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  FREELANCE
+}
+
+enum ExperienceLevel {
+  ENTRY_LEVEL
+  MID_LEVEL
+  SENIOR_LEVEL
+  EXECUTIVE
+}
+
+model User {
+  id                String      @id @default(cuid())
+  email             String      @unique
+  name              String
+  password          String
+  role              Role        @default(USER)
+  isVerified        Boolean     @default(false)
+  isApproved        Boolean     @default(false) // For employers pending admin approval
+  otpCode           String?
+  otpExpiry         DateTime?
+  profileImage      String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // User profile (for job seekers)
+  userProfile       UserProfile?
+  
+  // Company profile (for employers)
+  companyProfile    CompanyProfile?
+  
+  // Applications (for job seekers)
+  applications      Application[]
+  
+  // Jobs posted (for employers)
+  jobsPosted        Job[]
+
+  @@map("users")
+}
+
+model UserProfile {
+  id              String      @id @default(cuid())
+  userId          String      @unique
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  phone           String?
+  location        String?
+  bio             String?
+  skills          String?     // JSON string of skills array
+  experience      String?     // Years of experience
+  education       String?
+  resumeUrl       String?
+  portfolioUrl    String?
+  linkedinUrl     String?
+  githubUrl       String?
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("user_profiles")
+}
+
+model CompanyProfile {
+  id              String      @id @default(cuid())
+  userId          String      @unique
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  companyName     String
+  companySize     String?     // e.g., "1-10", "11-50", etc.
+  industry        String?
+  website         String?
+  description     String?
+  location        String?
+  logoUrl         String?
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("company_profiles")
+}
+
+model Job {
+  id                String            @id @default(cuid())
+  title             String
+  description       String
+  requirements      String?           // JSON string of requirements array
+  responsibilities  String?           // JSON string of responsibilities array
+  location          String?
+  isRemote          Boolean           @default(false)
+  employmentType    EmploymentType
+  experienceLevel   ExperienceLevel
+  salaryMin         Int?
+  salaryMax         Int?
+  currency          String            @default("USD")
+  skills            String?           // JSON string of required skills
+  benefits          String?           // JSON string of job benefits
+  isActive          Boolean           @default(true)
+  
+  // Relations
+  employerId        String
+  employer          User              @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  applications      Application[]
+  
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  deadline          DateTime?
+
+  @@map("jobs")
+}
+
+model Application {
+  id              String              @id @default(cuid())
+  status          ApplicationStatus   @default(PENDING)
+  coverLetter     String?
+  resumeUrl       String?
+  
+  // Relations
+  applicantId     String
+  applicant       User                @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  jobId           String
+  job             Job                 @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  reviewedAt      DateTime?
+
+  @@unique([applicantId, jobId]) // Prevent duplicate applications
+  @@map("applications")
+}
