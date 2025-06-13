@@ -9,7 +9,12 @@ const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z.enum(["USER", "EMPLOYER", "ADMIN"]).default("USER")
+  role: z.string().refine((val) => {
+    const normalized = val.toUpperCase();
+    return ['USER', 'EMPLOYER', 'ADMIN'].includes(normalized);
+  }, {
+    message: "Role must be one of: user, employer, admin"
+  }).transform((val) => val.toUpperCase() as 'USER' | 'EMPLOYER' | 'ADMIN').default("USER")
 })
 
 export async function POST(request: NextRequest) {
@@ -34,24 +39,20 @@ export async function POST(request: NextRequest) {
 
     // Generate OTP
     const otpCode = crypto.randomInt(100000, 999999).toString()
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
-
-    // Create user
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes    // Create user
     const user = await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
-        role: role === "user" ? "USER" : role === "employer" ? "EMPLOYER" : "ADMIN",
+        role: role, // role is already normalized to uppercase by the schema transform
         otpCode,
         otpExpiry,
         isApproved: role === "USER" // Auto-approve job seekers, employers need admin approval
       }
-    })
-
-    // Send OTP email
+    })    // Send OTP email
     try {
-      const transporter = nodemailer.createTransporter({
+      const transporter = nodemailer.createTransport({
         host: process.env.EMAIL_HOST,
         port: parseInt(process.env.EMAIL_PORT || "587"),
         secure: false,

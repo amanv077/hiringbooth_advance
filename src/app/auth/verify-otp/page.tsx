@@ -4,17 +4,18 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { ButtonLoader } from "@/components/ui/loader"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { Mail, ArrowLeft } from "lucide-react"
+import { Mail, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react"
 
 export default function VerifyOtpPage() {
   const searchParams = useSearchParams()
   const email = searchParams.get("email") || ""
-  
   const [otpCode, setOtpCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isResending, setIsResending] = useState(false)
+  const [showDevBypass, setShowDevBypass] = useState(true) // Always show in development
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,9 +58,31 @@ export default function VerifyOtpPage() {
         alert(error.message || "Failed to resend OTP")
       }
     } catch (error) {
+      alert("Something went wrong. Please try again.")    } finally {
+      setIsResending(false)
+    }
+  }
+
+  const handleDevBypass = async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch("/api/auth/dev-verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      })
+
+      if (response.ok) {
+        alert("Email verified successfully! You can now log in.")
+        window.location.href = "/auth/login"
+      } else {
+        const error = await response.json()
+        alert(error.error || "Verification failed")
+      }
+    } catch (error) {
       alert("Something went wrong. Please try again.")
     } finally {
-      setIsResending(false)
+      setIsLoading(false)
     }
   }
 
@@ -107,29 +130,67 @@ export default function VerifyOtpPage() {
                   placeholder="Enter 6-digit code"
                   className="mt-1 text-center text-lg font-mono tracking-widest"
                 />
-              </div>
-
-              <Button
+              </div>              <Button
                 type="submit"
                 className="w-full"
                 disabled={isLoading || otpCode.length !== 6}
               >
-                {isLoading ? "Verifying..." : "Verify Email"}
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <ButtonLoader size="sm" />
+                    Verifying...
+                  </div>
+                ) : (
+                  "Verify Email"
+                )}
               </Button>
-            </form>
-
-            <div className="mt-6 text-center">
+            </form>            <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Didn't receive the code?{" "}
                 <button
                   onClick={handleResendOtp}
                   disabled={isResending}
-                  className="font-medium text-primary hover:text-primary/80 disabled:opacity-50"
+                  className="font-medium text-primary hover:text-primary/80 disabled:opacity-50 flex items-center gap-1"
                 >
-                  {isResending ? "Sending..." : "Resend OTP"}
+                  {isResending ? (
+                    <>
+                      <ButtonLoader size="sm" />
+                      Sending...
+                    </>
+                  ) : (
+                    "Resend OTP"
+                  )}
                 </button>
               </p>
             </div>
+
+            {/* Development bypass option */}
+            {showDevBypass && (
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                <div className="text-center">
+                  <p className="text-sm text-yellow-700 mb-2">
+                    <AlertCircle className="h-4 w-4 inline mr-1" />
+                    Development Mode: Email not configured
+                  </p>
+                  <Button
+                    onClick={handleDevBypass}
+                    disabled={isLoading}
+                    variant="outline"
+                    size="sm"
+                    className="text-yellow-700 border-yellow-300 hover:bg-yellow-100"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center gap-2">
+                        <ButtonLoader size="sm" />
+                        Verifying...
+                      </div>
+                    ) : (
+                      "Skip Email Verification"
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
 
             <div className="mt-6">
               <Link

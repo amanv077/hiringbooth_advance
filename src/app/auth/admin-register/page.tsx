@@ -4,21 +4,16 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { ButtonLoader } from "@/components/ui/loader"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
-import { Building, User, Shield } from "lucide-react"
+import { Shield, AlertTriangle } from "lucide-react"
 
-export default function RegisterPage() {
-  const searchParams = useSearchParams()
-  const defaultRole = searchParams.get("role") || "user"
-  
+export default function AdminRegisterPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
-    role: defaultRole
+    adminCode: ""
   })
   const [isLoading, setIsLoading] = useState(false)
 
@@ -32,6 +27,13 @@ export default function RegisterPage() {
       return
     }
 
+    // Simple admin code verification (in production, use environment variable)
+    if (formData.adminCode !== "HIRINGBOOTH_ADMIN_2025") {
+      alert("Invalid admin code!")
+      setIsLoading(false)
+      return
+    }
+
     try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
@@ -40,12 +42,14 @@ export default function RegisterPage() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          role: formData.role        })
+          role: "admin"
+        })
       })
 
       if (response.ok) {
-        // Redirect to OTP verification page with email parameter
-        window.location.href = `/auth/verify-otp?email=${encodeURIComponent(formData.email)}`;
+        alert("Admin registration successful! Please check your email for OTP verification.")
+        // Redirect to OTP verification or login
+        window.location.href = "/auth/login"
       } else {
         const error = await response.json()
         alert(error.message || "Registration failed")
@@ -57,24 +61,6 @@ export default function RegisterPage() {
     }
   }
 
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case "user": return <User className="h-5 w-5" />
-      case "employer": return <Building className="h-5 w-5" />
-      case "admin": return <Shield className="h-5 w-5" />
-      default: return <User className="h-5 w-5" />
-    }
-  }
-
-  const getRoleLabel = (role: string) => {
-    switch (role) {
-      case "user": return "Job Seeker"
-      case "employer": return "Employer"
-      case "admin": return "Admin"
-      default: return "Job Seeker"
-    }
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -83,13 +69,10 @@ export default function RegisterPage() {
             HiringBooth
           </Link>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            Create your account
+            Admin Registration
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Already have an account?{" "}
-            <Link href="/auth/login" className="font-medium text-primary hover:text-primary/80">
-              Sign in
-            </Link>
+            Register as a system administrator
           </p>
         </div>
       </div>
@@ -97,55 +80,25 @@ export default function RegisterPage() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <Card>
           <CardHeader>
-            <CardTitle>Register</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-red-600" />
+              Admin Registration
+            </CardTitle>
             <CardDescription>
-              Choose your role and create your account
+              This page is for authorized administrators only
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Role Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  I am a:
-                </label>
-                <div className="grid grid-cols-1 gap-3">
-                  {[
-                    { value: "user", label: "Job Seeker", desc: "Looking for job opportunities" },
-                    { value: "employer", label: "Employer", desc: "Hiring talented professionals" }
-                  ].map((role) => (
-                    <div
-                      key={role.value}
-                      className={`relative rounded-lg border p-4 cursor-pointer transition-all ${
-                        formData.role === role.value
-                          ? "border-primary bg-primary/5 ring-2 ring-primary"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                      onClick={() => setFormData({ ...formData, role: role.value })}
-                    >
-                      <div className="flex items-center">
-                        <input
-                          type="radio"
-                          name="role"
-                          value={role.value}
-                          checked={formData.role === role.value}
-                          onChange={() => setFormData({ ...formData, role: role.value })}
-                          className="sr-only"
-                        />
-                        <div className="flex items-center space-x-3">
-                          {getRoleIcon(role.value)}
-                          <div>
-                            <div className="font-medium text-gray-900">{role.label}</div>
-                            <div className="text-sm text-gray-500">{role.desc}</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                <span className="text-sm text-yellow-700">
+                  Admin code required for registration
+                </span>
               </div>
+            </div>
 
-              {/* Form Fields */}
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                   Full Name
@@ -156,8 +109,8 @@ export default function RegisterPage() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Enter your full name"
                   className="mt-1"
+                  placeholder="Enter your full name"
                 />
               </div>
 
@@ -171,8 +124,23 @@ export default function RegisterPage() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="Enter your email"
                   className="mt-1"
+                  placeholder="Enter your email"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="adminCode" className="block text-sm font-medium text-gray-700">
+                  Admin Code
+                </label>
+                <Input
+                  id="adminCode"
+                  type="password"
+                  required
+                  value={formData.adminCode}
+                  onChange={(e) => setFormData({ ...formData, adminCode: e.target.value })}
+                  className="mt-1"
+                  placeholder="Enter admin authorization code"
                 />
               </div>
 
@@ -186,8 +154,8 @@ export default function RegisterPage() {
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="Create a password"
                   className="mt-1"
+                  placeholder="Enter your password"
                 />
               </div>
 
@@ -201,24 +169,25 @@ export default function RegisterPage() {
                   required
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  placeholder="Confirm your password"
                   className="mt-1"
+                  placeholder="Confirm your password"
                 />
-              </div>              <Button
+              </div>
+
+              <Button
                 type="submit"
                 className="w-full"
                 disabled={isLoading}
               >
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <ButtonLoader size="sm" />
-                    Creating Account...
-                  </div>
-                ) : (
-                  "Create Account"
-                )}
+                {isLoading ? "Creating Admin Account..." : "Register as Admin"}
               </Button>
             </form>
+
+            <div className="mt-6 text-center">
+              <Link href="/auth/login" className="text-sm text-primary hover:text-primary/80">
+                Already have an account? Sign in
+              </Link>
+            </div>
           </CardContent>
         </Card>
       </div>

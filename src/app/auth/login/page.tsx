@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { ButtonLoader } from "@/components/ui/loader"
 import Link from "next/link"
 import { Mail, Lock } from "lucide-react"
 
@@ -27,14 +28,18 @@ export default function LoginPage() {
 
       if (response.ok) {
         const data = await response.json()
+        console.log('Login response:', data); // Debug logging
         
         // Store token if available
         if (data.token) {
           localStorage.setItem('authToken', data.token);
+          console.log('Token stored:', data.token); // Debug logging
         }
         
         // Redirect based on user role and profile status
+        console.log('Redirecting user with role:', data.user.role); // Debug logging
         if (data.user.role === "ADMIN") {
+          console.log('Redirecting to admin dashboard'); // Debug logging
           window.location.href = "/admin/dashboard"
         } else if (data.user.role === "EMPLOYER") {
           if (data.user.hasProfile) {
@@ -143,14 +148,19 @@ export default function LoginPage() {
                     Forgot your password?
                   </Link>
                 </div>
-              </div>
-
-              <Button
+              </div>              <Button
                 type="submit"
                 className="w-full"
                 disabled={isLoading}
               >
-                {isLoading ? "Signing in..." : "Sign in"}
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <ButtonLoader size="sm" />
+                    Signing in...
+                  </div>
+                ) : (
+                  "Sign in"
+                )}
               </Button>
             </form>
 

@@ -63,12 +63,12 @@ export async function POST(request: NextRequest) {
         role: user.role 
       },
       process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || "fallback-secret",
-      { expiresIn: "7d" }
-    )
+      { expiresIn: "7d" }    )
 
     // Create response
     const response = NextResponse.json({
       message: "Login successful",
+      token: token, // Add token to response for frontend storage
       user: {
         id: user.id,
         name: user.name,
