@@ -16,11 +16,11 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     // Verify user is an employer
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-    });
-
-    if (!user || user.role !== 'EMPLOYER') {
+    });    if (!user || user.role !== 'EMPLOYER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }    // Verify the application belongs to employer's job
+    }
+
+    // Verify the application belongs to employer's job
     const application = await prisma.application.findFirst({
       where: {
         id: params.id,

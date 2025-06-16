@@ -32,12 +32,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     if (!job) {
       return NextResponse.json({ error: 'Job not found or inactive' }, { status: 404 });
-    }
-
-    // Check if user already applied
+    }    // Check if user already applied
     const existingApplication = await prisma.application.findFirst({
       where: {
-        userId: decoded.userId,
+        applicantId: decoded.userId,
         jobId: params.id,
       },
     });
@@ -48,7 +46,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     const application = await prisma.application.create({
       data: {
-        userId: decoded.userId,
+        applicantId: decoded.userId,
         jobId: params.id,
         coverLetter,
         status: 'PENDING',
@@ -56,10 +54,14 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       include: {
         job: {
           include: {
-            company: true,
+            employer: {
+              include: {
+                companyProfile: true,
+              },
+            },
           },
         },
-        user: {
+        applicant: {
           include: {
             userProfile: true,
           },

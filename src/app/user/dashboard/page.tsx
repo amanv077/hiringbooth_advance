@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Search, Briefcase, MapPin, Clock, Building, Eye, CheckCircle, XCircle, Clock4, User, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { Navbar } from '@/components/shared/Navbar';
+import toast from 'react-hot-toast';
 
 interface Job {
   id: string;
@@ -137,10 +138,10 @@ export default function UserDashboard() {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ coverLetter }),
-      });
-
-      if (response.ok) {
-        alert('Application submitted successfully!');
+      });      if (response.ok) {
+        toast.success('Application submitted successfully!', {
+          icon: '🎉',
+        });
         setShowApplyModal(false);
         setCoverLetter('');
         setSelectedJob(null);
@@ -149,12 +150,16 @@ export default function UserDashboard() {
         }
       } else {
         const data = await response.json();
-        alert(data.error || 'Failed to submit application');
+        toast.error(data.error || 'Failed to submit application', {
+          icon: '❌',
+        });
       }
     } catch (error) {
       console.error('Error applying to job:', error);
-      alert('An error occurred while submitting your application');
-    } finally {
+      toast.error('An error occurred while submitting your application', {
+        icon: '❌',
+      });
+    }finally {
       setIsLoading(false);
     }
   };

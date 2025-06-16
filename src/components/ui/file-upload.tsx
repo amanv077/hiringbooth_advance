@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, X, File, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import toast from 'react-hot-toast';
 
 interface FileUploadProps {
   onUpload: (url: string, fileName: string) => void;
@@ -68,19 +69,21 @@ export default function FileUpload({
           'Authorization': `Bearer ${token}`,
         },
         body: formData,
-      });
-
-      if (response.ok) {
+      });      if (response.ok) {
         const result = await response.json();
         onUpload(result.url, result.fileName);
       } else {
         const error = await response.json();
-        alert(error.error || 'Upload failed');
+        toast.error(error.error || 'Upload failed', {
+          icon: '❌',
+        });
       }
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Upload failed');
-    } finally {
+      toast.error('Upload failed', {
+        icon: '❌',
+      });
+    }finally {
       setUploading(false);
       setUploadProgress(0);
     }

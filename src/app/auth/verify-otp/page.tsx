@@ -8,6 +8,7 @@ import { ButtonLoader } from "@/components/ui/loader"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Mail, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react"
+import toast from 'react-hot-toast'
 
 export default function VerifyOtpPage() {
   const searchParams = useSearchParams()
@@ -26,39 +27,51 @@ export default function VerifyOtpPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otpCode })
-      })
-
+      });
+      
       if (response.ok) {
-        alert("Email verified successfully! You can now log in.")
+        toast.success("Email verified successfully! You can now log in.", {
+          icon: '✅',
+        });
         window.location.href = "/auth/login"
       } else {
         const error = await response.json()
-        alert(error.message || "Verification failed")
+        toast.error(error.message || "Verification failed", {
+          icon: '❌',
+        });
       }
     } catch (error) {
-      alert("Something went wrong. Please try again.")
-    } finally {
+      toast.error("Something went wrong. Please try again.", {
+        icon: '❌',
+      });
+    }finally {
       setIsLoading(false)
     }
   }
 
   const handleResendOtp = async () => {
     setIsResending(true)
-    try {
-      const response = await fetch("/api/auth/resend-otp", {
+    try {      const response = await fetch("/api/auth/resend-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
       })
 
       if (response.ok) {
-        alert("New OTP sent to your email!")
+        toast.success("New OTP sent to your email!", {
+          icon: '📧',
+        });
       } else {
         const error = await response.json()
-        alert(error.message || "Failed to resend OTP")
+        toast.error(error.message || "Failed to resend OTP", {
+          icon: '❌',
+        });
       }
     } catch (error) {
-      alert("Something went wrong. Please try again.")    } finally {
+      toast.error("Something went wrong. Please try again.", {
+        icon: '❌',
+      });
+    }finally {
       setIsResending(false)
     }
   }

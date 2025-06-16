@@ -11,13 +11,16 @@ export async function GET(request: NextRequest) {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-    
-    const applications = await prisma.application.findMany({
-      where: { userId: decoded.userId },
+      const applications = await prisma.application.findMany({
+      where: { applicantId: decoded.userId },
       include: {
         job: {
           include: {
-            company: true,
+            employer: {
+              include: {
+                companyProfile: true,
+              },
+            },
           },
         },
       },

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Search, Briefcase, MapPin, Clock, Building, Eye, CheckCircle, XCircle, Clock4, User, LogOut } from 'lucide-react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 interface Job {
   id: string;
@@ -129,22 +130,26 @@ export default function UserDashboard() {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ coverLetter }),
-      });
-
-      if (response.ok) {
-        alert('Application submitted successfully!');
+      });      if (response.ok) {
+        toast.success('Application submitted successfully!', {
+          icon: '🎉',
+        });
         setShowApplyModal(false);
         setCoverLetter('');
         setSelectedJob(null);
         fetchApplications(token!);
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to apply to job');
+        toast.error(error.error || 'Failed to apply to job', {
+          icon: '❌',
+        });
       }
     } catch (error) {
       console.error('Error applying to job:', error);
-      alert('Failed to apply to job');
-    } finally {
+      toast.error('Failed to apply to job', {
+        icon: '❌',
+      });
+    }finally {
       setIsLoading(false);
     }
   };

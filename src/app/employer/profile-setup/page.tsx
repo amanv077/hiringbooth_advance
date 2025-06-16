@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import CompanyProfileForm from '@/components/forms/CompanyProfileForm';
 import CompanyProfileView from '@/components/forms/CompanyProfileView';
 import { Navbar } from '@/components/shared/Navbar';
+import toast from 'react-hot-toast';
 
 export default function EmployerProfileSetup() {
   const [isLoading, setIsLoading] = useState(false);
@@ -53,20 +54,22 @@ export default function EmployerProfileSetup() {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
+      });      if (response.ok) {
         // Refresh the profile data
         await fetchEmployerProfile(token!);
         setIsEditing(false);
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to save profile');
+        toast.error(error.error || 'Failed to save profile', {
+          icon: '❌',
+        });
       }
     } catch (error) {
       console.error('Error saving profile:', error);
-      alert('Failed to save profile');
-    } finally {
+      toast.error('Failed to save profile', {
+        icon: '❌',
+      });
+    }finally {
       setIsLoading(false);
     }
   };

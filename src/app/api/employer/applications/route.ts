@@ -15,11 +15,11 @@ export async function GET(request: NextRequest) {
     // Verify user is an employer
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-    });
-
-    if (!user || user.role !== 'EMPLOYER') {
+    });    if (!user || user.role !== 'EMPLOYER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }    const applications = await prisma.application.findMany({
+    }
+
+    const applications = await prisma.application.findMany({
       where: {
         job: {
           employerId: decoded.userId,

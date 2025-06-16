@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import UserProfileForm from '@/components/forms/UserProfileForm';
 import { Navbar } from '@/components/shared/Navbar';
+import toast from 'react-hot-toast';
 
 export default function UserProfileSetup() {
   const [isLoading, setIsLoading] = useState(false);
@@ -57,18 +58,20 @@ export default function UserProfileSetup() {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
+      });      if (response.ok) {
         router.push('/user/dashboard');
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to save profile');
+        toast.error(error.error || 'Failed to save profile', {
+          icon: '❌',
+        });
       }
     } catch (error) {
       console.error('Error saving profile:', error);
-      alert('Failed to save profile');
-    } finally {
+      toast.error('Failed to save profile', {
+        icon: '❌',
+      });
+    }finally {
       setIsLoading(false);
     }
   };
