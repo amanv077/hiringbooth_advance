@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,7 +10,7 @@ import { useSearchParams } from "next/navigation"
 import { Building, User, Shield } from "lucide-react"
 import toast from "react-hot-toast"
 
-export default function RegisterPage() {
+function RegisterForm() {
   const searchParams = useSearchParams()
   const defaultRole = searchParams.get("role") || "user"
   
@@ -216,8 +216,7 @@ export default function RegisterPage() {
               </div>              <Button
                 type="submit"
                 className="w-full"
-                disabled={isLoading}
-              >
+                disabled={isLoading}              >
                 {isLoading ? (
                   <div className="flex items-center gap-2">
                     <ButtonLoader size="sm" />
@@ -232,5 +231,13 @@ export default function RegisterPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RegisterForm />
+    </Suspense>
   )
 }

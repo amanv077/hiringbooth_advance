@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,7 +10,7 @@ import { useSearchParams } from "next/navigation"
 import { Mail, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react"
 import toast from 'react-hot-toast'
 
-export default function VerifyOtpPage() {
+function VerifyOtpForm() {
   const searchParams = useSearchParams()
   const email = searchParams.get("email") || ""
   const [otpCode, setOtpCode] = useState("")
@@ -206,8 +206,7 @@ export default function VerifyOtpPage() {
             )}
 
             <div className="mt-6">
-              <Link
-                href="/auth/register"
+              <Link                href="/auth/register"
                 className="flex items-center justify-center text-sm text-gray-600 hover:text-gray-900"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
@@ -218,5 +217,13 @@ export default function VerifyOtpPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function VerifyOtpPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VerifyOtpForm />
+    </Suspense>
   )
 }
