@@ -6,10 +6,10 @@ export async function PUT(
   request: NextRequest, 
   { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
-    const { id } = await params;
+  try {    const { id } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
-      if (!token) {
+    
+    if (!token) {
       return NextResponse.json({ error: 'No token provided' }, { status: 401 });
     }
 
