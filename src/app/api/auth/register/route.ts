@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
 import crypto from "crypto"
-import nodemailer from "nodemailer"
+import { sendOTPEmail } from "@/lib/email"
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -52,36 +52,10 @@ export async function POST(request: NextRequest) {
       }
     })    // Send OTP email
     try {
-      const transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: parseInt(process.env.EMAIL_PORT || "587"),
-        secure: false,
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      })
-
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: "Verify your HiringBooth account",
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #2563eb;">Welcome to HiringBooth!</h2>
-            <p>Hi ${name},</p>
-            <p>Thank you for registering with HiringBooth. Please use the following OTP to verify your email address:</p>
-            <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
-              <h1 style="color: #2563eb; font-size: 32px; margin: 0;">${otpCode}</h1>
-            </div>
-            <p>This OTP will expire in 10 minutes.</p>
-            <p>If you didn't create an account with HiringBooth, please ignore this email.</p>
-            <p>Best regards,<br>The HiringBooth Team</p>
-          </div>
-        `
-      })
+      await sendOTPEmail(email, name, otpCode);
+      console.log(`OTP sent successfully to ${email}: ${otpCode}`);
     } catch (emailError) {
-      console.error("Failed to send OTP email:", emailError)
+      console.error("Failed to send OTP email:", emailError);
       // Continue anyway - user can request new OTP
     }
 

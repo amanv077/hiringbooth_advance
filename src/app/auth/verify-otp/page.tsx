@@ -10,13 +10,11 @@ import { useSearchParams } from "next/navigation"
 import { Mail, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react"
 import toast from 'react-hot-toast'
 
-function VerifyOtpForm() {
-  const searchParams = useSearchParams()
+function VerifyOtpForm() {  const searchParams = useSearchParams()
   const email = searchParams.get("email") || ""
   const [otpCode, setOtpCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isResending, setIsResending] = useState(false)
-  const [showDevBypass, setShowDevBypass] = useState(true) // Always show in development
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -73,31 +71,7 @@ function VerifyOtpForm() {
       });
     }finally {
       setIsResending(false)
-    }
-  }
-
-  const handleDevBypass = async () => {
-    setIsLoading(true)
-    try {
-      const response = await fetch("/api/auth/dev-verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-      })
-
-      if (response.ok) {
-        alert("Email verified successfully! You can now log in.")
-        window.location.href = "/auth/login"
-      } else {
-        const error = await response.json()
-        alert(error.error || "Verification failed")
-      }
-    } catch (error) {
-      alert("Something went wrong. Please try again.")
-    } finally {
-      setIsLoading(false)
-    }
-  }
+    }  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -173,37 +147,8 @@ function VerifyOtpForm() {
                   ) : (
                     "Resend OTP"
                   )}
-                </button>
-              </p>
+                </button>              </p>
             </div>
-
-            {/* Development bypass option */}
-            {showDevBypass && (
-              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-                <div className="text-center">
-                  <p className="text-sm text-yellow-700 mb-2">
-                    <AlertCircle className="h-4 w-4 inline mr-1" />
-                    Development Mode: Email not configured
-                  </p>
-                  <Button
-                    onClick={handleDevBypass}
-                    disabled={isLoading}
-                    variant="outline"
-                    size="sm"
-                    className="text-yellow-700 border-yellow-300 hover:bg-yellow-100"
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center gap-2">
-                        <ButtonLoader size="sm" />
-                        Verifying...
-                      </div>
-                    ) : (
-                      "Skip Email Verification"
-                    )}
-                  </Button>
-                </div>
-              </div>
-            )}
 
             <div className="mt-6">
               <Link                href="/auth/register"
