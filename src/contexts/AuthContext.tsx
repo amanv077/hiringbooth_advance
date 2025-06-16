@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { HiringLoader } from '@/components/ui/loader';
 
 interface UserData {
   id: string;
@@ -43,8 +42,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuthStatus = async () => {
     try {
-      // Only run on client side
-      if (typeof window === 'undefined' || !isClient) {
+      // Only access localStorage on the client side
+      if (typeof window === 'undefined') {
         setIsLoading(false);
         return;
       }
@@ -83,19 +82,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     }
   };
+
   const logout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('authToken');
-      setUser(null);
-      window.location.href = '/';
-    }
+    localStorage.removeItem('authToken');
+    setUser(null);
+    window.location.href = '/';
   };
 
   useEffect(() => {
-    if (isClient) {
-      checkAuthStatus();
-    }
-  }, [isClient]);
+    checkAuthStatus();
+  }, []);
 
   return (
     <AuthContext.Provider 
