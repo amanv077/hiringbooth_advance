@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { HiringLoader } from '@/components/ui/loader';
 import { Plus, Building, Users, Eye, CheckCircle, XCircle, Clock4, User, LogOut, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 
@@ -55,19 +56,25 @@ export default function EmployerDashboard() {
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Only run on client side to avoid hydration mismatch
+    if (typeof window === 'undefined' || !isMounted) return;
+    
     const token = localStorage.getItem('authToken');
     if (!token) {
       router.push('/auth/login');
       return;
-    }
-
-    fetchEmployerProfile(token);
+    }    fetchEmployerProfile(token);
     fetchJobs(token);
     fetchApplications(token);
-  }, [router]);
+  }, [router, isMounted]);
 
   const fetchEmployerProfile = async (token: string) => {
     try {
@@ -194,24 +201,20 @@ export default function EmployerDashboard() {
       default: return 'text-gray-600 bg-gray-50';
     }
   };
-
   const logout = () => {
-    localStorage.removeItem('authToken');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('authToken');
+    }
     router.push('/');
   };
 
   const totalApplications = applications.length;
   const pendingApplications = applications.filter(app => app.status === 'PENDING').length;
   const reviewedApplications = applications.filter(app => app.status === 'REVIEWED').length;
-  const acceptedApplications = applications.filter(app => app.status === 'ACCEPTED').length;
-
-  if (!user) {
+  const acceptedApplications = applications.filter(app => app.status === 'ACCEPTED').length;  if (!isMounted || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-green-50">
+        <HiringLoader size="xl" />
       </div>
     );
   }
@@ -452,12 +455,11 @@ export default function EmployerDashboard() {
                           className="text-gray-700 mb-3 line-clamp-2" 
                           dangerouslySetInnerHTML={{ __html: job.description || 'No description available' }}
                         />
-                        
-                        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                          <span>{job.location}</span>
-                          <span>{job.type.replace('_', ' ')}</span>
-                          <span>{job.experienceLevel.replace('_', ' ')}</span>
-                          <span>{job._count.applications} applications</span>
+                          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                          <span>{job.location || 'Location not specified'}</span>
+                          <span>{job.type?.replace('_', ' ') || 'Type not specified'}</span>
+                          <span>{job.experienceLevel?.replace('_', ' ') || 'Experience not specified'}</span>
+                          <span>{job._count?.applications || 0} applications</span>
                         </div>
                         
                         {job.salaryMin && job.salaryMax && (
