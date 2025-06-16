@@ -19,16 +19,14 @@ export async function GET(request: NextRequest) {
 
     if (!user || user.role !== 'EMPLOYER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    const applications = await prisma.application.findMany({
+    }    const applications = await prisma.application.findMany({
       where: {
         job: {
-          companyId: decoded.userId,
+          employerId: decoded.userId,
         },
       },
       include: {
-        user: {
+        applicant: {
           include: {
             userProfile: true,
           },

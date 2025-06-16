@@ -4,16 +4,21 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import FileUpload from '@/components/ui/file-upload';
+import RichTextEditor from '@/components/ui/rich-text-editor';
 
 interface UserProfileData {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
+  name: string;
+  phone: string;
   location: string;
   bio: string;
   skills: string;
   experience: string;
   education: string;
+  resumeUrl?: string;
+  portfolioUrl?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
 }
 
 interface UserProfileFormProps {
@@ -26,16 +31,18 @@ export default function UserProfileForm({
   initialData, 
   onSubmit, 
   isLoading = false 
-}: UserProfileFormProps) {
-  const [formData, setFormData] = useState<UserProfileData>({
-    firstName: initialData?.firstName || '',
-    lastName: initialData?.lastName || '',
-    phoneNumber: initialData?.phoneNumber || '',
+}: UserProfileFormProps) {  const [formData, setFormData] = useState<UserProfileData>({
+    name: initialData?.name || '',
+    phone: initialData?.phone || '',
     location: initialData?.location || '',
     bio: initialData?.bio || '',
     skills: initialData?.skills || '',
     experience: initialData?.experience || '',
     education: initialData?.education || '',
+    resumeUrl: initialData?.resumeUrl || '',
+    portfolioUrl: initialData?.portfolioUrl || '',
+    linkedinUrl: initialData?.linkedinUrl || '',
+    githubUrl: initialData?.githubUrl || '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,24 +60,13 @@ export default function UserProfileForm({
         <CardTitle>Complete Your Profile</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="space-y-6">          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium mb-2">First Name *</label>
+              <label className="block text-sm font-medium mb-2">Full Name *</label>
               <Input
-                value={formData.firstName}
-                onChange={(e) => handleChange('firstName', e.target.value)}
-                placeholder="Enter your first name"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Last Name *</label>
-              <Input
-                value={formData.lastName}
-                onChange={(e) => handleChange('lastName', e.target.value)}
-                placeholder="Enter your last name"
+                value={formData.name}
+                onChange={(e) => handleChange('name', e.target.value)}
+                placeholder="Enter your full name"
                 required
               />
             </div>
@@ -78,8 +74,8 @@ export default function UserProfileForm({
             <div>
               <label className="block text-sm font-medium mb-2">Phone Number</label>
               <Input
-                value={formData.phoneNumber}
-                onChange={(e) => handleChange('phoneNumber', e.target.value)}
+                value={formData.phone}
+                onChange={(e) => handleChange('phone', e.target.value)}
                 placeholder="Enter your phone number"
                 type="tel"
               />
@@ -93,45 +89,80 @@ export default function UserProfileForm({
                 placeholder="e.g. New York, NY"
               />
             </div>
-          </div>
 
-          <div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Portfolio URL</label>
+              <Input
+                value={formData.portfolioUrl || ''}
+                onChange={(e) => handleChange('portfolioUrl', e.target.value)}
+                placeholder="https://yourportfolio.com"
+                type="url"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">LinkedIn URL</label>
+              <Input
+                value={formData.linkedinUrl || ''}
+                onChange={(e) => handleChange('linkedinUrl', e.target.value)}
+                placeholder="https://linkedin.com/in/yourprofile"
+                type="url"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">GitHub URL</label>
+              <Input
+                value={formData.githubUrl || ''}
+                onChange={(e) => handleChange('githubUrl', e.target.value)}
+                placeholder="https://github.com/yourusername"
+                type="url"
+              />
+            </div>
+          </div><div>
             <label className="block text-sm font-medium mb-2">Bio</label>
-            <textarea
+            <RichTextEditor
               value={formData.bio}
-              onChange={(e) => handleChange('bio', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+              onChange={(value) => handleChange('bio', value)}
               placeholder="Tell us about yourself..."
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">Skills</label>
-            <textarea
+            <RichTextEditor
               value={formData.skills}
-              onChange={(e) => handleChange('skills', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+              onChange={(value) => handleChange('skills', value)}
               placeholder="List your skills (e.g. JavaScript, React, Node.js, Project Management)"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">Experience</label>
-            <textarea
+            <RichTextEditor
               value={formData.experience}
-              onChange={(e) => handleChange('experience', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px]"
+              onChange={(value) => handleChange('experience', value)}
               placeholder="Describe your work experience..."
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">Education</label>
-            <textarea
+            <RichTextEditor
               value={formData.education}
-              onChange={(e) => handleChange('education', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+              onChange={(value) => handleChange('education', value)}
               placeholder="Describe your educational background..."
+            />
+          </div>
+
+          <div>
+            <FileUpload
+              label="Resume"
+              accept="document"
+              currentFile={formData.resumeUrl}
+              onUpload={(url, fileName) => handleChange('resumeUrl', url)}
+              onRemove={() => handleChange('resumeUrl', '')}
+              maxSize={10}
             />
           </div>
 

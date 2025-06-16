@@ -20,14 +20,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     if (!user || user.role !== 'EMPLOYER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    // Verify the application belongs to employer's job
+    }    // Verify the application belongs to employer's job
     const application = await prisma.application.findFirst({
       where: {
         id: params.id,
         job: {
-          companyId: decoded.userId,
+          employerId: decoded.userId,
         },
       },
     });
@@ -40,7 +38,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       where: { id: params.id },
       data: { status },
       include: {
-        user: {
+        applicant: {
           include: {
             userProfile: true,
           },

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import RichTextEditor from '@/components/ui/rich-text-editor';
 
 interface JobFormData {
   title: string;
@@ -13,7 +14,6 @@ interface JobFormData {
   salaryMax: number;
   location: string;
   type: string;
-  category: string;
   experienceLevel: string;
 }
 
@@ -29,8 +29,7 @@ export default function JobForm({
   onSubmit, 
   submitLabel = 'Create Job',
   isLoading = false 
-}: JobFormProps) {
-  const [formData, setFormData] = useState<JobFormData>({
+}: JobFormProps) {  const [formData, setFormData] = useState<JobFormData>({
     title: initialData?.title || '',
     description: initialData?.description || '',
     requirements: initialData?.requirements || '',
@@ -38,7 +37,6 @@ export default function JobForm({
     salaryMax: initialData?.salaryMax || 0,
     location: initialData?.location || '',
     type: initialData?.type || 'FULL_TIME',
-    category: initialData?.category || '',
     experienceLevel: initialData?.experienceLevel || 'ENTRY_LEVEL',
   });
 
@@ -108,19 +106,7 @@ export default function JobForm({
                 <option value="SENIOR_LEVEL">Senior Level</option>
                 <option value="EXECUTIVE">Executive</option>
               </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Category *</label>
-              <Input
-                value={formData.category}
-                onChange={(e) => handleChange('category', e.target.value)}
-                placeholder="e.g. Technology, Marketing, Sales"
-                required
-              />
-            </div>
-
-            <div>
+            </div>            <div>
               <label className="block text-sm font-medium mb-2">Salary Range</label>
               <div className="flex space-x-2">
                 <Input
@@ -140,27 +126,21 @@ export default function JobForm({
                 />
               </div>
             </div>
-          </div>
-
-          <div>
+          </div>          <div>
             <label className="block text-sm font-medium mb-2">Job Description *</label>
-            <textarea
+            <RichTextEditor
               value={formData.description}
-              onChange={(e) => handleChange('description', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px]"
+              onChange={(value) => handleChange('description', value)}
               placeholder="Describe the role, responsibilities, and what you're looking for..."
-              required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">Requirements *</label>
-            <textarea
+            <RichTextEditor
               value={formData.requirements}
-              onChange={(e) => handleChange('requirements', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px]"
+              onChange={(value) => handleChange('requirements', value)}
               placeholder="List the required skills, experience, and qualifications..."
-              required
             />
           </div>
 

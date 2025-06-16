@@ -44,33 +44,43 @@ export async function PUT(request: NextRequest) {
     
     if (!token) {
       return NextResponse.json({ error: 'No token provided' }, { status: 401 });
-    }
+    }    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+    const { name, phone, location, bio, skills, experience, education, resumeUrl, portfolioUrl, linkedinUrl, githubUrl } = await request.json();
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-    const { firstName, lastName, phoneNumber, location, bio, skills, experience, education } = await request.json();
+    // Update user name if provided
+    if (name) {
+      await prisma.user.update({
+        where: { id: decoded.userId },
+        data: { name },
+      });
+    }
 
     const updatedProfile = await prisma.userProfile.upsert({
       where: { userId: decoded.userId },
       update: {
-        firstName,
-        lastName,
-        phoneNumber,
+        phone,
         location,
         bio,
         skills,
         experience,
         education,
+        resumeUrl,
+        portfolioUrl,
+        linkedinUrl,
+        githubUrl,
       },
       create: {
         userId: decoded.userId,
-        firstName,
-        lastName,
-        phoneNumber,
+        phone,
         location,
         bio,
         skills,
         experience,
         education,
+        resumeUrl,
+        portfolioUrl,
+        linkedinUrl,
+        githubUrl,
       },
     });
 

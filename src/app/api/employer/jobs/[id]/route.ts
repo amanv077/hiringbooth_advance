@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
+import { EmploymentType, ExperienceLevel } from '@prisma/client';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -19,15 +20,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     if (!user || user.role !== 'EMPLOYER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    const job = await prisma.job.findFirst({
+    }    const job = await prisma.job.findFirst({
       where: {
         id: params.id,
-        companyId: decoded.userId,
+        employerId: decoded.userId,
       },
       include: {
-        company: true,
+        employer: true,
       },
     });
 
@@ -59,9 +58,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     if (!user || user.role !== 'EMPLOYER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    const {
+    }    const {
       title,
       description,
       requirements,
@@ -69,15 +66,30 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       salaryMax,
       location,
       type,
-      category,
       experienceLevel,
       isActive,
     } = await request.json();
 
+    // Map the form type to the schema employment type
+    const employmentTypeMap: Record<string, EmploymentType> = {
+      'FULL_TIME': EmploymentType.FULL_TIME,
+      'PART_TIME': EmploymentType.PART_TIME,
+      'CONTRACT': EmploymentType.CONTRACT,
+      'FREELANCE': EmploymentType.FREELANCE,
+      'INTERNSHIP': EmploymentType.INTERNSHIP
+    };
+
+    const experienceLevelMap: Record<string, ExperienceLevel> = {
+      'ENTRY_LEVEL': ExperienceLevel.ENTRY_LEVEL,
+      'MID_LEVEL': ExperienceLevel.MID_LEVEL,
+      'SENIOR_LEVEL': ExperienceLevel.SENIOR_LEVEL,
+      'EXECUTIVE': ExperienceLevel.EXECUTIVE
+    };
+
     const job = await prisma.job.updateMany({
       where: {
         id: params.id,
-        companyId: decoded.userId,
+        employerId: decoded.userId,
       },
       data: {
         title,
@@ -86,9 +98,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         salaryMin,
         salaryMax,
         location,
-        type,
-        category,
-        experienceLevel,
+        employmentType: type ? employmentTypeMap[type] : undefined,
+        experienceLevel: experienceLevel ? experienceLevelMap[experienceLevel] : undefined,
         isActive,
       },
     });
@@ -99,7 +110,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     const updatedJob = await prisma.job.findUnique({
       where: { id: params.id },
-      include: { company: true },
+      include: { employer: true },
     });
 
     return NextResponse.json({ job: updatedJob });
@@ -126,12 +137,10 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
     if (!user || user.role !== 'EMPLOYER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    const deletedJob = await prisma.job.deleteMany({
+    }    const deletedJob = await prisma.job.deleteMany({
       where: {
         id: params.id,
-        companyId: decoded.userId,
+        employerId: decoded.userId,
       },
     });
 

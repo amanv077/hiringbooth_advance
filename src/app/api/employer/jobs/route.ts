@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
+import { EmploymentType, ExperienceLevel } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,15 +20,12 @@ export async function GET(request: NextRequest) {
 
     if (!user || user.role !== 'EMPLOYER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    const jobs = await prisma.job.findMany({
-      where: { companyId: decoded.userId },
+    }    const jobs = await prisma.job.findMany({
+      where: { employerId: decoded.userId },
       include: {
-        company: true,
-        applications: {
+        employer: true,        applications: {
           include: {
-            user: {
+            applicant: {
               include: {
                 userProfile: true,
               },
@@ -75,25 +73,37 @@ export async function POST(request: NextRequest) {
       salaryMax,
       location,
       type,
-      category,
       experienceLevel,
-    } = await request.json();
+    } = await request.json();    // Map the form type to the schema employment type
+    const employmentTypeMap: Record<string, EmploymentType> = {
+      'FULL_TIME': EmploymentType.FULL_TIME,
+      'PART_TIME': EmploymentType.PART_TIME,
+      'CONTRACT': EmploymentType.CONTRACT,
+      'FREELANCE': EmploymentType.FREELANCE,
+      'INTERNSHIP': EmploymentType.INTERNSHIP
+    };
+
+    const experienceLevelMap: Record<string, ExperienceLevel> = {
+      'ENTRY_LEVEL': ExperienceLevel.ENTRY_LEVEL,
+      'MID_LEVEL': ExperienceLevel.MID_LEVEL,
+      'SENIOR_LEVEL': ExperienceLevel.SENIOR_LEVEL,
+      'EXECUTIVE': ExperienceLevel.EXECUTIVE
+    };
 
     const job = await prisma.job.create({
       data: {
         title,
         description,
         requirements,
-        salaryMin,
-        salaryMax,
+        salaryMin: salaryMin || null,
+        salaryMax: salaryMax || null,
         location,
-        type,
-        category,
-        experienceLevel,
-        companyId: decoded.userId,
+        employmentType: employmentTypeMap[type] || EmploymentType.FULL_TIME,
+        experienceLevel: experienceLevelMap[experienceLevel] || ExperienceLevel.ENTRY_LEVEL,
+        employerId: decoded.userId,
       },
       include: {
-        company: true,
+        employer: true,
       },
     });
 

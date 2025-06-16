@@ -45,18 +45,16 @@ export async function PUT(request: NextRequest) {
     
     if (!token) {
       return NextResponse.json({ error: 'No token provided' }, { status: 401 });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+    }    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+    
     const { 
       companyName, 
-      companyDescription, 
+      description, 
       industry, 
       companySize, 
       website, 
-      location, 
-      contactEmail, 
-      contactPhone 
+      location,
+      logoUrl
     } = await request.json();
 
     const user = await prisma.user.findUnique({
@@ -71,24 +69,22 @@ export async function PUT(request: NextRequest) {
       where: { userId: decoded.userId },
       update: {
         companyName,
-        companyDescription,
+        description,
         industry,
         companySize,
         website,
         location,
-        contactEmail,
-        contactPhone,
+        logoUrl,
       },
       create: {
         userId: decoded.userId,
         companyName,
-        companyDescription,
+        description,
         industry,
         companySize,
         website,
         location,
-        contactEmail,
-        contactPhone,
+        logoUrl,
       },
     });
 

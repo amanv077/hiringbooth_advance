@@ -4,16 +4,17 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import FileUpload from '@/components/ui/file-upload';
+import RichTextEditor from '@/components/ui/rich-text-editor';
 
 interface CompanyProfileData {
   companyName: string;
-  companyDescription: string;
+  description: string;
   industry: string;
   companySize: string;
   website: string;
   location: string;
-  contactEmail: string;
-  contactPhone: string;
+  logoUrl?: string;
 }
 
 interface CompanyProfileFormProps {
@@ -26,16 +27,14 @@ export default function CompanyProfileForm({
   initialData, 
   onSubmit, 
   isLoading = false 
-}: CompanyProfileFormProps) {
-  const [formData, setFormData] = useState<CompanyProfileData>({
+}: CompanyProfileFormProps) {  const [formData, setFormData] = useState<CompanyProfileData>({
     companyName: initialData?.companyName || '',
-    companyDescription: initialData?.companyDescription || '',
+    description: initialData?.description || '',
     industry: initialData?.industry || '',
     companySize: initialData?.companySize || '1-10',
     website: initialData?.website || '',
     location: initialData?.location || '',
-    contactEmail: initialData?.contactEmail || '',
-    contactPhone: initialData?.contactPhone || '',
+    logoUrl: initialData?.logoUrl || '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -109,38 +108,25 @@ export default function CompanyProfileForm({
                 onChange={(e) => handleChange('location', e.target.value)}
                 placeholder="e.g. New York, NY"
                 required
-              />
-            </div>
+              />            </div>          </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Contact Email</label>
-              <Input
-                value={formData.contactEmail}
-                onChange={(e) => handleChange('contactEmail', e.target.value)}
-                placeholder="contact@company.com"
-                type="email"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-2">Contact Phone</label>
-              <Input
-                value={formData.contactPhone}
-                onChange={(e) => handleChange('contactPhone', e.target.value)}
-                placeholder="Company phone number"
-                type="tel"
-              />
-            </div>
+          <div>
+            <FileUpload
+              label="Company Logo"
+              accept="image"
+              currentFile={formData.logoUrl}
+              onUpload={(url, fileName) => handleChange('logoUrl', url)}
+              onRemove={() => handleChange('logoUrl', '')}
+              maxSize={5}
+            />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">Company Description *</label>
-            <textarea
-              value={formData.companyDescription}
-              onChange={(e) => handleChange('companyDescription', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px]"
+            <RichTextEditor
+              value={formData.description}
+              onChange={(value) => handleChange('description', value)}
               placeholder="Describe your company, mission, and culture..."
-              required
             />
           </div>
 
