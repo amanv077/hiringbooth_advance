@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  try {    const job = await prisma.job.findFirst({
+export async function GET(
+  request: NextRequest, 
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    
+    const job = await prisma.job.findFirst({
       where: {
-        id: params.id,
+        id,
         isActive: true,
         employer: {
           isApproved: true,

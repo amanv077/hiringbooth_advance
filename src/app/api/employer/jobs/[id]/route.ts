@@ -5,26 +5,30 @@ import { EmploymentType, ExperienceLevel } from '@prisma/client';
 
 type UrgencyType = 'URGENT' | 'NOT_URGENT';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest, 
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     
     if (!token) {
       return NextResponse.json({ error: 'No token provided' }, { status: 401 });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+    }    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
     
     // Verify user is an employer
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-    });    if (!user || user.role !== 'EMPLOYER') {
+    });
+
+    if (!user || user.role !== 'EMPLOYER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
     
     const job = await prisma.job.findFirst({
       where: {
-        id: params.id,
+        id,
         employerId: decoded.userId,
       },
       include: {
@@ -43,8 +47,12 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: NextRequest, 
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     
     if (!token) {
@@ -56,7 +64,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     // Verify user is an employer
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-    });    if (!user || user.role !== 'EMPLOYER') {
+    });
+
+    if (!user || user.role !== 'EMPLOYER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
     
@@ -89,13 +99,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       const urgencyMap: Record<string, UrgencyType> = {
       'URGENT': 'URGENT',
       'NOT_URGENT': 'NOT_URGENT'
-    };
-
-    const job = await prisma.job.updateMany({
+    };    const job = await prisma.job.updateMany({
       where: {
-        id: params.id,
+        id,
         employerId: decoded.userId,
-      },      data: {
+      },
+      data: {
         title,
         description,
         requirements,
@@ -113,7 +122,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     const updatedJob = await prisma.job.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { employer: true },
     });
 
@@ -124,8 +133,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest, 
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     
     if (!token) {
@@ -137,13 +150,15 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     // Verify user is an employer
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-    });    if (!user || user.role !== 'EMPLOYER') {
+    });
+
+    if (!user || user.role !== 'EMPLOYER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
     
     const deletedJob = await prisma.job.deleteMany({
       where: {
-        id: params.id,
+        id,
         employerId: decoded.userId,
       },
     });

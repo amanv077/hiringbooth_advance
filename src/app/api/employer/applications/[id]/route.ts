@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: NextRequest, 
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     
     if (!token) {
@@ -18,12 +22,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       where: { id: decoded.userId },
     });    if (!user || user.role !== 'EMPLOYER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    // Verify the application belongs to employer's job
+    }    // Verify the application belongs to employer's job
     const application = await prisma.application.findFirst({
       where: {
-        id: params.id,
+        id,
         job: {
           employerId: decoded.userId,
         },
@@ -35,7 +37,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     const updatedApplication = await prisma.application.update({
-      where: { id: params.id },
+      where: { id },
       data: { status },
       include: {
         applicant: {

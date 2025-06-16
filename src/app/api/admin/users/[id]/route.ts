@@ -2,16 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: NextRequest, 
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     
     if (!token) {
       return NextResponse.json({ error: 'No token provided' }, { status: 401 });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-    const { isApproved, isActive } = await request.json();
+    }    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+    const { isApproved } = await request.json();
     
     // Verify user is an admin
     const user = await prisma.user.findUnique({
@@ -23,10 +25,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     const updatedUser = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         isApproved,
-        isActive,
       },
       include: {
         userProfile: true,

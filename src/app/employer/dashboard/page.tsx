@@ -33,7 +33,7 @@ interface Application {
   status: string;
   createdAt: string;
   coverLetter: string;
-  user: {
+  applicant: {
     email: string;
     userProfile: {
       firstName: string;
@@ -478,10 +478,9 @@ export default function EmployerDashboard() {
               </CardHeader>
               <CardContent>
                 {applications.slice(0, 5).map((application) => (
-                  <div key={application.id} className="flex justify-between items-center py-3 border-b last:border-b-0">
-                    <div>
+                  <div key={application.id} className="flex justify-between items-center py-3 border-b last:border-b-0">                    <div>
                       <p className="font-medium text-gray-900">
-                        {application.user.userProfile?.firstName} {application.user.userProfile?.lastName}
+                        {application.applicant.userProfile?.firstName} {application.applicant.userProfile?.lastName}
                       </p>
                       <p className="text-sm text-gray-600">Applied for {application.job.title}</p>
                       <p className="text-xs text-gray-500">
@@ -642,15 +641,15 @@ export default function EmployerDashboard() {
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                          {application.user.userProfile?.firstName} {application.user.userProfile?.lastName}
+                          {application.applicant.userProfile?.firstName} {application.applicant.userProfile?.lastName}
                         </h3>
                         <p className="text-gray-600 mb-2">Applied for: {application.job.title}</p>
                         <p className="text-sm text-gray-500 mb-2">
-                          Email: {application.user.email}
+                          Email: {application.applicant.email}
                         </p>
-                        {application.user.userProfile?.location && (
+                        {application.applicant.userProfile?.location && (
                           <p className="text-sm text-gray-500 mb-2">
-                            Location: {application.user.userProfile.location}
+                            Location: {application.applicant.userProfile.location}
                           </p>
                         )}
                         <p className="text-xs text-gray-500">
@@ -704,13 +703,13 @@ export default function EmployerDashboard() {
             <div className="space-y-4 mb-6">
               <div>
                 <h4 className="font-medium text-gray-900">Applicant Details</h4>
-                <p>Name: {selectedApplication.user.userProfile?.firstName} {selectedApplication.user.userProfile?.lastName}</p>
-                <p>Email: {selectedApplication.user.email}</p>
-                {selectedApplication.user.userProfile?.phoneNumber && (
-                  <p>Phone: {selectedApplication.user.userProfile.phoneNumber}</p>
+                <p>Name: {selectedApplication.applicant.userProfile?.firstName} {selectedApplication.applicant.userProfile?.lastName}</p>
+                <p>Email: {selectedApplication.applicant.email}</p>
+                {selectedApplication.applicant.userProfile?.phoneNumber && (
+                  <p>Phone: {selectedApplication.applicant.userProfile.phoneNumber}</p>
                 )}
-                {selectedApplication.user.userProfile?.location && (
-                  <p>Location: {selectedApplication.user.userProfile.location}</p>
+                {selectedApplication.applicant.userProfile?.location && (
+                  <p>Location: {selectedApplication.applicant.userProfile.location}</p>
                 )}
               </div>
               
@@ -726,17 +725,17 @@ export default function EmployerDashboard() {
                 </div>
               )}
               
-              {selectedApplication.user.userProfile?.skills && (
+              {selectedApplication.applicant.userProfile?.skills && (
                 <div>
                   <h4 className="font-medium text-gray-900">Skills</h4>
-                  <p className="text-gray-700">{selectedApplication.user.userProfile.skills}</p>
+                  <p className="text-gray-700">{selectedApplication.applicant.userProfile.skills}</p>
                 </div>
               )}
               
-              {selectedApplication.user.userProfile?.experience && (
+              {selectedApplication.applicant.userProfile?.experience && (
                 <div>
                   <h4 className="font-medium text-gray-900">Experience</h4>
-                  <p className="text-gray-700 whitespace-pre-wrap">{selectedApplication.user.userProfile.experience}</p>
+                  <p className="text-gray-700 whitespace-pre-wrap">{selectedApplication.applicant.userProfile.experience}</p>
                 </div>
               )}
             </div>

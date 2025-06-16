@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(
+  request: NextRequest, 
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     
     if (!token) {
@@ -20,23 +24,23 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     if (!user || user.role !== 'USER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    // Check if job exists and is active
+    }    // Check if job exists and is active
     const job = await prisma.job.findUnique({
       where: {
-        id: params.id,
+        id,
         isActive: true,
       },
     });
 
     if (!job) {
       return NextResponse.json({ error: 'Job not found or inactive' }, { status: 404 });
-    }    // Check if user already applied
+    }
+
+    // Check if user already applied
     const existingApplication = await prisma.application.findFirst({
       where: {
         applicantId: decoded.userId,
-        jobId: params.id,
+        jobId: id,
       },
     });
 
@@ -47,7 +51,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const application = await prisma.application.create({
       data: {
         applicantId: decoded.userId,
-        jobId: params.id,
+        jobId: id,
         coverLetter,
         status: 'PENDING',
       },
