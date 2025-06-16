@@ -3,10 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import CompanyProfileForm from '@/components/forms/CompanyProfileForm';
+import CompanyProfileView from '@/components/forms/CompanyProfileView';
+import { Navbar } from '@/components/shared/Navbar';
 
 export default function EmployerProfileSetup() {
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -18,9 +21,7 @@ export default function EmployerProfileSetup() {
 
     // Fetch employer profile
     fetchEmployerProfile(token);
-  }, [router]);
-
-  const fetchEmployerProfile = async (token: string) => {
+  }, [router]);  const fetchEmployerProfile = async (token: string) => {
     try {
       const response = await fetch('/api/employer/profile', {
         headers: {
@@ -31,11 +32,8 @@ export default function EmployerProfileSetup() {
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
-        
-        // If profile is already complete, redirect to dashboard
-        if (data.user.profile?.companyName) {
-          router.push('/employer/dashboard');
-        }
+        // Set editing mode based on whether profile exists
+        setIsEditing(!data.user.profile?.companyName);
       } else {
         localStorage.removeItem('authToken');
         router.push('/auth/login');
@@ -44,7 +42,6 @@ export default function EmployerProfileSetup() {
       console.error('Error fetching profile:', error);
     }
   };
-
   const handleSubmit = async (formData: any) => {
     setIsLoading(true);
     try {
@@ -59,7 +56,9 @@ export default function EmployerProfileSetup() {
       });
 
       if (response.ok) {
-        router.push('/employer/dashboard');
+        // Refresh the profile data
+        await fetchEmployerProfile(token!);
+        setIsEditing(false);
       } else {
         const error = await response.json();
         alert(error.error || 'Failed to save profile');
@@ -69,6 +68,18 @@ export default function EmployerProfileSetup() {
       alert('Failed to save profile');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    if (user.profile?.companyName) {
+      setIsEditing(false);
+    } else {
+      router.push('/employer/dashboard');
     }
   };
 
@@ -82,14 +93,26 @@ export default function EmployerProfileSetup() {
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Welcome to HiringBooth!</h1>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="pt-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">
+            {!user.profile?.companyName 
+              ? 'Welcome to HiringBooth!' 
+              : isEditing 
+                ? 'Edit Company Profile' 
+                : 'Company Profile'
+            }
+          </h1>
           <p className="text-gray-600 mt-2">
-            Complete your company profile to start posting jobs
+            {!user.profile?.companyName 
+              ? 'Complete your company profile to start posting jobs'
+              : isEditing 
+                ? 'Update your company information below'
+                : 'View and manage your company information'
+            }
           </p>
           {!user.isApproved && (
             <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mt-4">
@@ -98,11 +121,22 @@ export default function EmployerProfileSetup() {
           )}
         </div>
         
-        <CompanyProfileForm
-          initialData={user.profile}
-          onSubmit={handleSubmit}
-          isLoading={isLoading}
-        />
+        {isEditing ? (
+          <CompanyProfileForm
+            initialData={user.profile}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+            isEditing={true}
+            onCancel={handleCancel}
+          />
+        ) : (
+          user.profile?.companyName && (
+            <CompanyProfileView
+              profile={user.profile}
+              onEdit={handleEdit}
+            />
+          )        )}
+        </div>
       </div>
     </div>
   );

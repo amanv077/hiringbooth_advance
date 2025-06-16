@@ -5,14 +5,14 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
 interface RichTextEditorProps {
-  value: string;
+  value?: string;
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
 }
 
 export default function RichTextEditor({
-  value,
+  value = '',
   onChange,
   placeholder = "Enter text...",
   className = ""

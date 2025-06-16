@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import UserProfileForm from '@/components/forms/UserProfileForm';
+import { Navbar } from '@/components/shared/Navbar';
 
 export default function UserProfileSetup() {
   const [isLoading, setIsLoading] = useState(false);
@@ -82,22 +83,23 @@ export default function UserProfileSetup() {
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Welcome to HiringBooth!</h1>
-          <p className="text-gray-600 mt-2">
-            Let's set up your profile to help employers find you
-          </p>
-        </div>
-        
-        <UserProfileForm
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="pt-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">Welcome to HiringBooth!</h1>
+            <p className="text-gray-600 mt-2">
+              Let's set up your profile to help employers find you
+            </p>
+          </div>
+          <UserProfileForm
           initialData={user.profile}
           onSubmit={handleSubmit}
           isLoading={isLoading}
         />
+        </div>
       </div>
     </div>
   );

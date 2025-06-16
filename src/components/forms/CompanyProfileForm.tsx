@@ -21,13 +21,17 @@ interface CompanyProfileFormProps {
   initialData?: Partial<CompanyProfileData>;
   onSubmit: (data: CompanyProfileData) => Promise<void>;
   isLoading?: boolean;
+  isEditing?: boolean;
+  onCancel?: () => void;
 }
 
 export default function CompanyProfileForm({ 
   initialData, 
   onSubmit, 
-  isLoading = false 
-}: CompanyProfileFormProps) {  const [formData, setFormData] = useState<CompanyProfileData>({
+  isLoading = false,
+  isEditing = false,
+  onCancel
+}: CompanyProfileFormProps) {const [formData, setFormData] = useState<CompanyProfileData>({
     companyName: initialData?.companyName || '',
     description: initialData?.description || '',
     industry: initialData?.industry || '',
@@ -128,12 +132,17 @@ export default function CompanyProfileForm({
               onChange={(value) => handleChange('description', value)}
               placeholder="Describe your company, mission, and culture..."
             />
-          </div>
-
-          <div className="flex justify-end">
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Saving...' : 'Save Profile'}
-            </Button>
+          </div>          <div className="flex justify-between">
+            {isEditing && onCancel && (
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Back to Dashboard
+              </Button>
+            )}
+            <div className={isEditing ? '' : 'ml-auto'}>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? 'Saving...' : (isEditing ? 'Update Profile' : 'Save Profile')}
+              </Button>
+            </div>
           </div>
         </form>
       </CardContent>

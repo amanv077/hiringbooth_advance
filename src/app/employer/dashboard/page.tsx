@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Building, Users, Eye, CheckCircle, XCircle, Clock4, User, LogOut, Briefcase } from 'lucide-react';
+import { Plus, Building, Users, Eye, CheckCircle, XCircle, Clock4, User, LogOut, Briefcase, Edit, BarChart, Calendar, DollarSign } from 'lucide-react';
 import Link from 'next/link';
+import { Navbar } from '@/components/shared/Navbar';
 
 interface Job {
   id: string;
@@ -215,95 +216,81 @@ export default function EmployerDashboard() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-blue-600">
-                HiringBooth
-              </Link>
-              <span className="ml-4 text-gray-600">Employer Dashboard</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">
-                Welcome, {user.profile?.companyName || user.email}!
-              </span>
-              {!user.isApproved && (
-                <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
-                  Pending Approval
-                </span>
-              )}
-              <Button variant="outline" onClick={() => router.push('/employer/profile-setup')}>
-                <User className="h-4 w-4 mr-2" />
-                Profile
-              </Button>
-              <Button variant="outline" onClick={logout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Employer Dashboard</h1>
+          <p className="mt-2 text-gray-600">
+            Manage your job postings and view applications
+          </p>
+        </div>
         {/* Account Status Warning */}
         {!user.isApproved && (
           <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-6">
             <p className="font-medium">Account Pending Approval</p>
             <p className="text-sm">Your employer account is under review. You'll be able to post jobs once approved by our admin team.</p>
           </div>
-        )}
-
-        {/* Quick Stats */}
+        )}        {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
+          <Card className="hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center">
                 <Briefcase className="h-8 w-8 text-blue-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Posted Jobs</p>
                   <p className="text-2xl font-bold text-gray-900">{jobs.length}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {jobs.filter(job => job.isActive).length} active
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center">
                 <Users className="h-8 w-8 text-green-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Applications</p>
                   <p className="text-2xl font-bold text-gray-900">{totalApplications}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Across all jobs
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center">
                 <Clock4 className="h-8 w-8 text-yellow-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Pending Review</p>
                   <p className="text-2xl font-bold text-gray-900">{pendingApplications}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Need your attention
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center">
                 <CheckCircle className="h-8 w-8 text-green-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Accepted</p>
+                  <p className="text-sm font-medium text-gray-600">Hired</p>
                   <p className="text-2xl font-bold text-gray-900">{acceptedApplications}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Successfully hired
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -421,14 +408,18 @@ export default function EmployerDashboard() {
               )}
             </div>
 
-            <div className="space-y-4">
-              {jobs.map((job) => (
-                <Card key={job.id}>
+            <div className="space-y-4">              {jobs.map((job) => (
+                <Card key={job.id} className="hover:shadow-lg transition-shadow cursor-pointer">
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start">
-                      <div className="flex-1">
+                      <div 
+                        className="flex-1 cursor-pointer" 
+                        onClick={() => router.push(`/employer/jobs/${job.id}`)}
+                      >
                         <div className="flex items-center mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">{job.title}</h3>
+                          <h3 className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                            {job.title}
+                          </h3>
                           <span className={`ml-3 px-2 py-1 rounded-full text-xs font-medium ${
                             job.isActive ? 'text-green-600 bg-green-50' : 'text-gray-600 bg-gray-50'
                           }`}>
@@ -439,32 +430,71 @@ export default function EmployerDashboard() {
                         <p className="text-gray-700 mb-3 line-clamp-2">{job.description}</p>
                         
                         <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                          <span>{job.location}</span>
-                          <span>{job.type.replace('_', ' ')}</span>
-                          <span>{job.experienceLevel.replace('_', ' ')}</span>
-                          <span>{job._count.applications} applications</span>
+                          <span className="flex items-center gap-1">
+                            <Building className="h-3 w-3" />
+                            {job.location || 'Remote'}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock4 className="h-3 w-3" />
+                            {job.type?.replace('_', ' ') || 'Full Time'}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <BarChart className="h-3 w-3" />
+                            {job.experienceLevel?.replace('_', ' ') || 'Entry Level'}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            {job._count?.applications || 0} applications
+                          </span>
                         </div>
                         
                         {job.salaryMin && job.salaryMax && (
                           <div className="mt-2">
-                            <span className="text-green-600 font-semibold">
+                            <span className="text-green-600 font-semibold flex items-center gap-1">
+                              <DollarSign className="h-4 w-4" />
                               ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}
                             </span>
                           </div>
                         )}
+
+                        <div className="mt-3 text-xs text-gray-500">
+                          Posted on {new Date(job.createdAt).toLocaleDateString()}
+                        </div>
                       </div>
                       
                       <div className="ml-6 flex space-x-2">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => toggleJobStatus(job.id, !job.isActive)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleJobStatus(job.id, !job.isActive);
+                          }}
                           disabled={isLoading}
                         >
                           {job.isActive ? 'Deactivate' : 'Activate'}
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/employer/jobs/${job.id}/edit`);
+                          }}
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
                           Edit
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/employer/jobs/${job.id}/applications`);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View Applications
                         </Button>
                       </div>
                     </div>

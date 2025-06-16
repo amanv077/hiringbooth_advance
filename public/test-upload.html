@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test File Upload</title>
+</head>
+<body>
+    <h1>Test File Upload</h1>
+    <form id="uploadForm">
+        <input type="file" id="fileInput" accept="image/*" />
+        <button type="submit">Upload</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a file');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('folder', 'logos');
+
+            const token = localStorage.getItem('authToken');
+            
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+                document.getElementById('result').innerHTML = 
+                    `<p>Status: ${response.status}</p>
+                     <p>Response: ${JSON.stringify(result, null, 2)}</p>`;
+                     
+                if (result.url) {
+                    document.getElementById('result').innerHTML += 
+                        `<p><img src="${result.url}" style="max-width: 200px;" /></p>`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = 
+                    `<p>Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

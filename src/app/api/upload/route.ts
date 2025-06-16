@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { writeFile, mkdir } from 'fs/promises';
+import path from 'path';
 import { verifyToken } from '@/lib/auth';
-import { uploadToCloudinary } from '@/lib/cloudinary';
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,20 +43,26 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Convert file to buffer
+    // Create uploads directory
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', folder);
+    await mkdir(uploadsDir, { recursive: true });
+
+    // Generate unique filename
+    const timestamp = Date.now();
+    const fileName = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const filePath = path.join(uploadsDir, fileName);
+
+    // Convert file to buffer and save
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+    await writeFile(filePath, buffer);
 
-    // Determine resource type
-    const resourceType = file.type.startsWith('image/') ? 'image' : 'raw';
-
-    // Upload to Cloudinary
-    const result = await uploadToCloudinary(buffer, `hiringbooth/${folder}`, resourceType);
+    // Return the URL
+    const fileUrl = `/uploads/${folder}/${fileName}`;
 
     return NextResponse.json({
       message: 'File uploaded successfully',
-      url: (result as any).secure_url,
-      publicId: (result as any).public_id,
+      url: fileUrl,
       fileName: file.name,
       fileSize: file.size,
       fileType: file.type
