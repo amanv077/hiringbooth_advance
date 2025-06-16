@@ -16,6 +16,7 @@ interface Job {
   type: string;
   category: string;
   experienceLevel: string;
+  urgency: 'URGENT' | 'NOT_URGENT';
   salaryMin?: number;
   salaryMax?: number;
   isActive: boolean;
@@ -53,8 +54,11 @@ export default function EmployerDashboard() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
+  const [jobsSubTab, setJobsSubTab] = useState('active'); // 'active' or 'inactive'
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [showApplicationModal, setShowApplicationModal] = useState(false);
+  const [showJobEditModal, setShowJobEditModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
@@ -182,6 +186,51 @@ export default function EmployerDashboard() {
     }
   };
 
+  const handleEditJob = (job: Job) => {
+    setSelectedJob(job);
+    setShowJobEditModal(true);
+  };
+
+  const handleUpdateJob = async (jobData: any) => {
+    if (!selectedJob) return;
+    
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`/api/employer/jobs/${selectedJob.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(jobData),
+      });
+
+      if (response.ok) {
+        alert('Job updated successfully!');
+        fetchJobs(token!);
+        setShowJobEditModal(false);
+        setSelectedJob(null);
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to update job');
+      }
+    } catch (error) {
+      console.error('Error updating job:', error);
+      alert('Failed to update job');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'PENDING': return <Clock4 className="h-4 w-4 text-yellow-500" />;
@@ -263,17 +312,22 @@ export default function EmployerDashboard() {
         )}
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card 
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">          <Card 
             className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
-            onClick={() => setActiveTab('jobs')}
+            onClick={() => {
+              setActiveTab('jobs');
+              setJobsSubTab('active');
+            }}
           >
             <CardContent className="p-6">
               <div className="flex items-center">
                 <Briefcase className="h-8 w-8 text-blue-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Posted Jobs</p>
-                  <p className="text-2xl font-bold text-gray-900">{jobs.length}</p>
+                  <p className="text-sm font-medium text-gray-600">Active Jobs</p>
+                  <p className="text-2xl font-bold text-gray-900">{jobs.filter(job => job.isActive).length}</p>
+                  <p className="text-xs text-gray-500">
+                    {jobs.filter(job => !job.isActive).length} inactive
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -337,8 +391,7 @@ export default function EmployerDashboard() {
               }`}
             >
               Overview
-            </button>
-            <button
+            </button>            <button
               onClick={() => setActiveTab('jobs')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'jobs'
@@ -346,7 +399,7 @@ export default function EmployerDashboard() {
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
-              My Jobs
+              Job Management
             </button>
             <button
               onClick={() => setActiveTab('applications')}
@@ -421,13 +474,11 @@ export default function EmployerDashboard() {
               </CardContent>
             </Card>
           </div>
-        )}
-
-        {/* Jobs Tab */}
+        )}        {/* Jobs Tab */}
         {activeTab === 'jobs' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">My Jobs</h2>
+              <h2 className="text-xl font-semibold">Job Management</h2>
               {user.isApproved && (
                 <Button onClick={() => router.push('/employer/jobs/create')}>
                   <Plus className="h-4 w-4 mr-2" />
@@ -436,30 +487,61 @@ export default function EmployerDashboard() {
               )}
             </div>
 
+            {/* Jobs Sub-tabs */}
+            <div className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg w-fit">
+              <button
+                onClick={() => setJobsSubTab('active')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  jobsSubTab === 'active'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Active Jobs ({jobs.filter(job => job.isActive).length})
+              </button>
+              <button
+                onClick={() => setJobsSubTab('inactive')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  jobsSubTab === 'inactive'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Inactive Jobs ({jobs.filter(job => !job.isActive).length})
+              </button>
+            </div>
+
             <div className="space-y-4">
-              {jobs.map((job) => (
+              {jobs.filter(job => jobsSubTab === 'active' ? job.isActive : !job.isActive).map((job) => (
                 <Card key={job.id}>
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center mb-2">
+                      <div className="flex-1">                        <div className="flex items-center mb-2">
                           <h3 className="text-lg font-semibold text-gray-900">{job.title}</h3>
-                          <span className={`ml-3 px-2 py-1 rounded-full text-xs font-medium ${
-                            job.isActive ? 'text-green-600 bg-green-50' : 'text-gray-600 bg-gray-50'
-                          }`}>
-                            {job.isActive ? 'Active' : 'Inactive'}
-                          </span>
+                          {job.urgency === 'URGENT' && (
+                            <span className="ml-3 px-2 py-1 rounded-full text-xs font-medium text-red-600 bg-red-50 animate-pulse">
+                              🔥 Urgent
+                            </span>
+                          )}
+                          {jobsSubTab === 'inactive' && (
+                            <span className="ml-3 px-2 py-1 rounded-full text-xs font-medium text-gray-600 bg-gray-50">
+                              Inactive
+                            </span>
+                          )}
                         </div>
                         
                         <div 
                           className="text-gray-700 mb-3 line-clamp-2" 
                           dangerouslySetInnerHTML={{ __html: job.description || 'No description available' }}
-                        />
-                          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                        />                          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                           <span>{job.location || 'Location not specified'}</span>
                           <span>{job.type?.replace('_', ' ') || 'Type not specified'}</span>
                           <span>{job.experienceLevel?.replace('_', ' ') || 'Experience not specified'}</span>
                           <span>{job._count?.applications || 0} applications</span>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-4 text-sm text-gray-500 mt-2">
+                          <span>📅 Created: {formatDate(job.createdAt)}</span>
                         </div>
                         
                         {job.salaryMin && job.salaryMax && (
@@ -471,37 +553,47 @@ export default function EmployerDashboard() {
                         )}
                       </div>
                       
-                      <div className="ml-6 flex space-x-2">
-                        <Button
+                      <div className="ml-6 flex space-x-2">                        <Button
                           variant="outline"
                           size="sm"
                           onClick={() => toggleJobStatus(job.id, !job.isActive)}
                           disabled={isLoading}
                         >
-                          {job.isActive ? 'Deactivate' : 'Activate'}
+                          {jobsSubTab === 'active' ? 'Deactivate' : 'Reactivate'}
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleEditJob(job)}>
                           Edit
                         </Button>
                       </div>
                     </div>
                   </CardContent>
-                </Card>
-              ))}
+                </Card>              ))}
               
-              {jobs.length === 0 && (
+              {jobs.filter(job => jobsSubTab === 'active' ? job.isActive : !job.isActive).length === 0 && (
                 <Card>
                   <CardContent className="p-8 text-center">
                     <Briefcase className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No jobs posted yet</h3>
-                    <p className="text-gray-600 mb-4">Start by posting your first job</p>
-                    {user.isApproved ? (
-                      <Button onClick={() => router.push('/employer/jobs/create')}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Post Your First Job
-                      </Button>
+                    {jobsSubTab === 'active' ? (
+                      <>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No active jobs</h3>
+                        <p className="text-gray-600 mb-4">
+                          {jobs.length > 0 ? 'All your jobs are currently inactive' : 'Start by posting your first job'}
+                        </p>
+                        {user.isApproved && jobs.length === 0 && (
+                          <Button onClick={() => router.push('/employer/jobs/create')}>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Post Your First Job
+                          </Button>
+                        )}
+                        {!user.isApproved && (
+                          <p className="text-sm text-yellow-600">Account approval required to post jobs</p>
+                        )}
+                      </>
                     ) : (
-                      <p className="text-sm text-yellow-600">Account approval required to post jobs</p>
+                      <>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No inactive jobs</h3>
+                        <p className="text-gray-600">All your jobs are currently active or you haven't posted any jobs yet.</p>
+                      </>
                     )}
                   </CardContent>
                 </Card>
@@ -662,6 +754,140 @@ export default function EmployerDashboard() {
                   Accept
                 </Button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Job Edit Modal */}
+      {showJobEditModal && selectedJob && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl font-semibold mb-4">Edit Job</h3>
+            
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Job Title
+                </label>
+                <input
+                  type="text"
+                  value={selectedJob.title}
+                  onChange={(e) => setSelectedJob({ ...selectedJob, title: e.target.value })}
+                  className="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring focus:ring-blue-500 focus:outline-none"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Job Description
+                </label>
+                <textarea
+                  value={selectedJob.description}
+                  onChange={(e) => setSelectedJob({ ...selectedJob, description: e.target.value })}
+                  className="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring focus:ring-blue-500 focus:outline-none"
+                  rows={4}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Location
+                </label>
+                <input
+                  type="text"
+                  value={selectedJob.location}
+                  onChange={(e) => setSelectedJob({ ...selectedJob, location: e.target.value })}
+                  className="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring focus:ring-blue-500 focus:outline-none"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Job Type
+                </label>
+                <select
+                  value={selectedJob.type}
+                  onChange={(e) => setSelectedJob({ ...selectedJob, type: e.target.value })}
+                  className="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="">Select job type</option>
+                  <option value="FULL_TIME">Full Time</option>
+                  <option value="PART_TIME">Part Time</option>
+                  <option value="CONTRACT">Contract</option>
+                  <option value="TEMPORARY">Temporary</option>
+                </select>
+              </div>
+                <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Experience Level
+                </label>
+                <select
+                  value={selectedJob.experienceLevel}
+                  onChange={(e) => setSelectedJob({ ...selectedJob, experienceLevel: e.target.value })}
+                  className="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="">Select experience level</option>
+                  <option value="ENTRY_LEVEL">Entry Level</option>
+                  <option value="MID_LEVEL">Mid Level</option>
+                  <option value="SENIOR_LEVEL">Senior Level</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Urgency
+                </label>
+                <select
+                  value={selectedJob.urgency || 'NOT_URGENT'}
+                  onChange={(e) => setSelectedJob({ ...selectedJob, urgency: e.target.value as 'URGENT' | 'NOT_URGENT' })}
+                  className="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="NOT_URGENT">Not Urgent</option>
+                  <option value="URGENT">Urgent</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Salary Range
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    value={selectedJob.salaryMin || ''}
+                    onChange={(e) => setSelectedJob({ ...selectedJob, salaryMin: Number(e.target.value) })}
+                    placeholder="Min"
+                    className="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring focus:ring-blue-500 focus:outline-none"
+                  />
+                  <input
+                    type="number"
+                    value={selectedJob.salaryMax || ''}
+                    onChange={(e) => setSelectedJob({ ...selectedJob, salaryMax: Number(e.target.value) })}
+                    placeholder="Max"
+                    className="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowJobEditModal(false);
+                  setSelectedJob(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => handleUpdateJob(selectedJob)}
+                disabled={isLoading}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                {isLoading ? 'Updating...' : 'Update Job'}
+              </Button>
             </div>
           </div>
         </div>

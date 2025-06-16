@@ -41,6 +41,11 @@ enum ExperienceLevel {
   EXECUTIVE
 }
 
+enum Urgency {
+  URGENT
+  NOT_URGENT
+}
+
 model User {
   id                String      @id @default(cuid())
   email             String      @unique
@@ -121,6 +126,7 @@ model Job {
   isRemote          Boolean           @default(false)
   employmentType    EmploymentType
   experienceLevel   ExperienceLevel
+  urgency           Urgency           @default(NOT_URGENT)
   salaryMin         Int?
   salaryMax         Int?
   currency          String            @default("USD")

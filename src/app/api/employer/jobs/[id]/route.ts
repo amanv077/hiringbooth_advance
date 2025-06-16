@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 import { EmploymentType, ExperienceLevel } from '@prisma/client';
 
+type UrgencyType = 'URGENT' | 'NOT_URGENT';
+
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
@@ -16,11 +18,11 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     // Verify user is an employer
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-    });
-
-    if (!user || user.role !== 'EMPLOYER') {
+    });    if (!user || user.role !== 'EMPLOYER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }    const job = await prisma.job.findFirst({
+    }
+    
+    const job = await prisma.job.findFirst({
       where: {
         id: params.id,
         employerId: decoded.userId,
@@ -54,11 +56,11 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     // Verify user is an employer
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-    });
-
-    if (!user || user.role !== 'EMPLOYER') {
+    });    if (!user || user.role !== 'EMPLOYER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }    const {
+    }
+    
+    const {
       title,
       description,
       requirements,
@@ -67,6 +69,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       location,
       type,
       experienceLevel,
+      urgency,
       isActive,
     } = await request.json();
 
@@ -75,23 +78,24 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       'FULL_TIME': EmploymentType.FULL_TIME,
       'PART_TIME': EmploymentType.PART_TIME,
       'CONTRACT': EmploymentType.CONTRACT,
-      'FREELANCE': EmploymentType.FREELANCE,
-      'INTERNSHIP': EmploymentType.INTERNSHIP
+      'FREELANCE': EmploymentType.FREELANCE,      'INTERNSHIP': EmploymentType.INTERNSHIP
     };
-
+    
     const experienceLevelMap: Record<string, ExperienceLevel> = {
       'ENTRY_LEVEL': ExperienceLevel.ENTRY_LEVEL,
       'MID_LEVEL': ExperienceLevel.MID_LEVEL,
-      'SENIOR_LEVEL': ExperienceLevel.SENIOR_LEVEL,
-      'EXECUTIVE': ExperienceLevel.EXECUTIVE
+      'SENIOR_LEVEL': ExperienceLevel.SENIOR_LEVEL,      'EXECUTIVE': ExperienceLevel.EXECUTIVE
+    };
+      const urgencyMap: Record<string, UrgencyType> = {
+      'URGENT': 'URGENT',
+      'NOT_URGENT': 'NOT_URGENT'
     };
 
     const job = await prisma.job.updateMany({
       where: {
         id: params.id,
         employerId: decoded.userId,
-      },
-      data: {
+      },      data: {
         title,
         description,
         requirements,
@@ -133,11 +137,11 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     // Verify user is an employer
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-    });
-
-    if (!user || user.role !== 'EMPLOYER') {
+    });    if (!user || user.role !== 'EMPLOYER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }    const deletedJob = await prisma.job.deleteMany({
+    }
+    
+    const deletedJob = await prisma.job.deleteMany({
       where: {
         id: params.id,
         employerId: decoded.userId,

@@ -15,6 +15,7 @@ interface JobFormData {
   location: string;
   type: string;
   experienceLevel: string;
+  urgency: string;
 }
 
 interface JobFormProps {
@@ -38,6 +39,7 @@ export default function JobForm({
     location: initialData?.location || '',
     type: initialData?.type || 'FULL_TIME',
     experienceLevel: initialData?.experienceLevel || 'ENTRY_LEVEL',
+    urgency: initialData?.urgency || 'NOT_URGENT',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -104,9 +106,23 @@ export default function JobForm({
                 <option value="ENTRY_LEVEL">Entry Level</option>
                 <option value="MID_LEVEL">Mid Level</option>
                 <option value="SENIOR_LEVEL">Senior Level</option>
-                <option value="EXECUTIVE">Executive</option>
+                <option value="EXECUTIVE">Executive</option>              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Urgency *</label>
+              <select
+                value={formData.urgency}
+                onChange={(e) => handleChange('urgency', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="NOT_URGENT">Not Urgent</option>
+                <option value="URGENT">Urgent</option>
               </select>
-            </div>            <div>
+            </div>
+
+            <div>
               <label className="block text-sm font-medium mb-2">Salary Range</label>
               <div className="flex space-x-2">
                 <Input
