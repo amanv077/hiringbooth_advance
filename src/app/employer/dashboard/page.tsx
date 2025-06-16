@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { HiringLoader } from '@/components/ui/loader';
 import { Plus, Building, Users, Eye, CheckCircle, XCircle, Clock4, User, LogOut, Briefcase } from 'lucide-react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 interface Job {
   id: string;
@@ -127,9 +128,10 @@ export default function EmployerDashboard() {
       console.error('Error fetching applications:', error);
     }
   };
-
   const updateApplicationStatus = async (applicationId: string, status: string) => {
     setIsLoading(true);
+    const loadingToast = toast.loading('Updating application status...');
+    
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch(`/api/employer/applications/${applicationId}`, {
@@ -137,29 +139,36 @@ export default function EmployerDashboard() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status }),
-      });
-
-      if (response.ok) {
-        alert('Application status updated successfully!');
+        },        body: JSON.stringify({ status }),
+      });      if (response.ok) {
+        toast.success('Application status updated successfully!', {
+          id: loadingToast,
+          icon: '✅',
+        });
         fetchApplications(token!);
         setShowApplicationModal(false);
         setSelectedApplication(null);
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to update application status');
+        toast.error(error.error || 'Failed to update application status', {
+          id: loadingToast,
+          icon: '❌',
+        });
       }
     } catch (error) {
       console.error('Error updating application:', error);
-      alert('Failed to update application status');
+      toast.error('Failed to update application status', {
+        id: loadingToast,
+        icon: '❌',
+      });
     } finally {
       setIsLoading(false);
     }
   };
-
   const toggleJobStatus = async (jobId: string, isActive: boolean) => {
     setIsLoading(true);
+    const loadingToast = toast.loading(`${isActive ? 'Activating' : 'Deactivating'} job...`);
+    
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch(`/api/employer/jobs/${jobId}`, {
@@ -172,15 +181,24 @@ export default function EmployerDashboard() {
       });
 
       if (response.ok) {
-        alert(`Job ${isActive ? 'activated' : 'deactivated'} successfully!`);
+        toast.success(`Job ${isActive ? 'activated' : 'deactivated'} successfully!`, {
+          id: loadingToast,
+          icon: isActive ? '✅' : '⏸️',
+        });
         fetchJobs(token!);
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to update job status');
+        toast.error(error.error || 'Failed to update job status', {
+          id: loadingToast,
+          icon: '❌',
+        });
       }
     } catch (error) {
       console.error('Error updating job:', error);
-      alert('Failed to update job status');
+      toast.error('Failed to update job status', {
+        id: loadingToast,
+        icon: '❌',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -190,11 +208,12 @@ export default function EmployerDashboard() {
     setSelectedJob(job);
     setShowJobEditModal(true);
   };
-
   const handleUpdateJob = async (jobData: any) => {
     if (!selectedJob) return;
     
     setIsLoading(true);
+    const loadingToast = toast.loading('Updating job...');
+    
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch(`/api/employer/jobs/${selectedJob.id}`, {
@@ -207,17 +226,26 @@ export default function EmployerDashboard() {
       });
 
       if (response.ok) {
-        alert('Job updated successfully!');
+        toast.success('Job updated successfully!', {
+          id: loadingToast,
+          icon: '📝',
+        });
         fetchJobs(token!);
         setShowJobEditModal(false);
         setSelectedJob(null);
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to update job');
+        toast.error(error.error || 'Failed to update job', {
+          id: loadingToast,
+          icon: '❌',
+        });
       }
     } catch (error) {
       console.error('Error updating job:', error);
-      alert('Failed to update job');
+      toast.error('Failed to update job', {
+        id: loadingToast,
+        icon: '❌',
+      });
     } finally {
       setIsLoading(false);
     }

@@ -8,6 +8,7 @@ import { ButtonLoader } from "@/components/ui/loader"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Building, User, Shield } from "lucide-react"
+import toast from "react-hot-toast"
 
 export default function RegisterPage() {
   const searchParams = useSearchParams()
@@ -25,9 +26,10 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!")
+      if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords don't match!", {
+        icon: '🔐',
+      })
       setIsLoading(false)
       return
     }
@@ -39,19 +41,26 @@ export default function RegisterPage() {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
-          password: formData.password,
-          role: formData.role        })
+          password: formData.password,          role: formData.role
+        })
       })
 
       if (response.ok) {
+        toast.success("Registration successful! Check your email for verification.", {
+          icon: '✅',
+        })
         // Redirect to OTP verification page with email parameter
         window.location.href = `/auth/verify-otp?email=${encodeURIComponent(formData.email)}`;
       } else {
         const error = await response.json()
-        alert(error.message || "Registration failed")
+        toast.error(error.message || "Registration failed", {
+          icon: '❌',
+        })
       }
     } catch (error) {
-      alert("Something went wrong. Please try again.")
+      toast.error("Something went wrong. Please try again.", {
+        icon: '❌',
+      })
     } finally {
       setIsLoading(false)
     }

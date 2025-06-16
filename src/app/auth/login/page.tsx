@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { ButtonLoader } from "@/components/ui/loader"
 import Link from "next/link"
 import { Mail, Lock } from "lucide-react"
+import toast from "react-hot-toast"
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -53,13 +54,16 @@ export default function LoginPage() {
           } else {
             window.location.href = "/user/profile-setup"
           }
-        }
-      } else {
+        }      } else {
         const error = await response.json()
-        alert(error.message || "Login failed")
+        toast.error(error.message || "Login failed", {
+          icon: '🔐',
+        })
       }
     } catch (error) {
-      alert("Something went wrong. Please try again.")
+      toast.error("Something went wrong. Please try again.", {
+        icon: '❌',
+      })
     } finally {
       setIsLoading(false)
     }

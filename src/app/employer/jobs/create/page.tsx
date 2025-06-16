@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { HiringLoader } from '@/components/ui/loader';
 import JobForm from '@/components/forms/JobForm';
+import toast from 'react-hot-toast';
 
 export default function CreateJob() {
   const [isLoading, setIsLoading] = useState(false);
@@ -45,9 +46,10 @@ export default function CreateJob() {
       console.error('Error fetching profile:', error);
     }
   };
-
   const handleSubmit = async (formData: any) => {
     setIsLoading(true);
+    const loadingToast = toast.loading('Creating job...');
+    
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch('/api/employer/jobs', {
@@ -55,19 +57,26 @@ export default function CreateJob() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
+        },        body: JSON.stringify(formData),
+      });      if (response.ok) {
+        toast.success('Job created successfully!', {
+          id: loadingToast,
+          icon: '🎉',
+        });
         router.push('/employer/dashboard');
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to create job');
+        toast.error(error.error || 'Failed to create job', {
+          id: loadingToast,
+          icon: '❌',
+        });
       }
     } catch (error) {
       console.error('Error creating job:', error);
-      alert('Failed to create job');
+      toast.error('Failed to create job', {
+        id: loadingToast,
+        icon: '❌',
+      });
     } finally {
       setIsLoading(false);
     }
