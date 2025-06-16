@@ -21,16 +21,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const jobs = await prisma.job.findMany({
-      include: {
-        company: {
+    const jobs = await prisma.job.findMany({      include: {
+        employer: {
           include: {
             companyProfile: true,
           },
         },
         applications: {
           include: {
-            user: {
+            applicant: {
               include: {
                 userProfile: true,
               },

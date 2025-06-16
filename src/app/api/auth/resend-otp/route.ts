@@ -20,16 +20,14 @@ export async function POST(request: NextRequest) {
 
     if (user.isVerified) {
       return NextResponse.json({ error: 'User is already verified' }, { status: 400 });
-    }
-
-    // Generate new OTP
+    }    // Generate new OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     await prisma.user.update({
       where: { email },
       data: {
-        otp,
+        otpCode: otp,
         otpExpiry,
       },
     });
