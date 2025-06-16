@@ -9,10 +9,11 @@ export async function PUT(
   try {
     const { id } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
-    
-    if (!token) {
+      if (!token) {
       return NextResponse.json({ error: 'No token provided' }, { status: 401 });
-    }    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
     const { isApproved } = await request.json();
     
     // Verify user is an admin
