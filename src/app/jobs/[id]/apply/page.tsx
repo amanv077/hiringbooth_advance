@@ -40,9 +40,9 @@ interface Job {
 }
 
 interface JobApplyPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function JobApplyPage({ params }: JobApplyPageProps) {
@@ -54,22 +54,27 @@ export default function JobApplyPage({ params }: JobApplyPageProps) {
   const router = useRouter();
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      toast.error('Please login to apply for jobs', {
-        icon: '🔐',
-      });
-      router.push(`/auth/login?redirect=/jobs/${params.id}/apply`);
-      return;
-    }
+    const fetchJobAndCheckAuth = async () => {
+      const { id } = await params;
+      
+      // Check if user is logged in
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        toast.error('Please login to apply for jobs', {
+          icon: '🔐',
+        });
+        router.push(`/auth/login?redirect=/jobs/${id}/apply`);
+        return;
+      }
 
-    fetchJob();
-  }, [params.id, router]);
+      fetchJob(id);
+    };
 
-  const fetchJob = async () => {
+    fetchJobAndCheckAuth();
+  }, [params, router]);
+  const fetchJob = async (jobId: string) => {
     try {
-      const response = await fetch(`/api/jobs/${params.id}`);
+      const response = await fetch(`/api/jobs/${jobId}`);
       if (response.ok) {
         const data = await response.json();
         setJob(data.job);
@@ -85,7 +90,6 @@ export default function JobApplyPage({ params }: JobApplyPageProps) {
       setIsLoading(false);
     }
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -94,12 +98,18 @@ export default function JobApplyPage({ params }: JobApplyPageProps) {
       return;
     }
 
+    if (coverLetter.length < 100) {
+      toast.error('Cover letter must be at least 100 characters');
+      return;
+    }
+
     setIsSubmitting(true);
     const loadingToast = toast.loading('Submitting your application...');
 
     try {
+      const { id } = await params;
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`/api/jobs/${params.id}/apply`, {
+      const response = await fetch(`/api/jobs/${id}/apply`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

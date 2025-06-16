@@ -61,24 +61,33 @@ interface Job {
 }
 
 interface JobDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function JobDetailPage({ params }: JobDetailPageProps) {
   const [job, setJob] = useState<Job | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isApplying, setIsApplying] = useState(false);
+  const [jobId, setJobId] = useState<string>('');
   const router = useRouter();
 
   useEffect(() => {
-    fetchJob();
-  }, [params.id]);
+    const initializeParams = async () => {
+      const { id } = await params;
+      setJobId(id);
+      fetchJob(id);
+    };
+    initializeParams();
+  }, [params]);
 
-  const fetchJob = async () => {
+  const fetchJob = async (id?: string) => {
+    const currentId = id || jobId;
+    if (!currentId) return;
+    
     try {
-      const response = await fetch(`/api/jobs/${params.id}`);
+      const response = await fetch(`/api/jobs/${currentId}`);
       if (response.ok) {
         const data = await response.json();
         setJob(data.job);
@@ -94,17 +103,16 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
       setIsLoading(false);
     }
   };
-
   const handleApplyClick = () => {
     const token = localStorage.getItem('authToken');
     if (!token) {
       toast.error('Please login to apply for this job', {
         icon: '🔐',
       });
-      router.push(`/auth/login?redirect=/jobs/${params.id}`);
+      router.push(`/auth/login?redirect=/jobs/${jobId}`);
       return;
     }
-    router.push(`/jobs/${params.id}/apply`);
+    router.push(`/jobs/${jobId}/apply`);
   };
 
   const formatDate = (dateString: string) => {
