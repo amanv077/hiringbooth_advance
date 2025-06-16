@@ -11,13 +11,10 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type');
     const experienceLevel = searchParams.get('experienceLevel');
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-
-    const where: any = {
+    const limit = parseInt(searchParams.get('limit') || '10');    const where: any = {
       isActive: true,
-      company: {
+      employer: {
         isApproved: true,
-        isActive: true,
       },
     };
 
@@ -35,10 +32,8 @@ export async function GET(request: NextRequest) {
 
     if (location) {
       where.location = { contains: location, mode: 'insensitive' };
-    }
-
-    if (type) {
-      where.type = type;
+    }    if (type) {
+      where.employmentType = type;
     }
 
     if (experienceLevel) {
@@ -46,9 +41,8 @@ export async function GET(request: NextRequest) {
     }
 
     const jobs = await prisma.job.findMany({
-      where,
-      include: {
-        company: {
+      where,      include: {
+        employer: {
           include: {
             companyProfile: true,
           },
