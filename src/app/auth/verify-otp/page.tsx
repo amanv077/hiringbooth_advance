@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ButtonLoader } from "@/components/ui/loader"
+import { Navbar, Footer } from "@/components/shared"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Mail, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react"
@@ -72,95 +73,106 @@ function VerifyOtpForm() {  const searchParams = useSearchParams()
     }finally {
       setIsResending(false)
     }  }
-
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="text-center">
-          <Link href="/" className="text-2xl font-bold text-primary">
-            HiringBooth
-          </Link>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            Verify your email
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            We've sent a 6-digit code to{" "}
-            <span className="font-medium text-gray-900">{email}</span>
-          </p>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      
+      <div className="flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="text-center">
+            <Link href="/" className="text-2xl font-bold text-primary">
+              HiringBooth
+            </Link>
+            <h2 className="mt-6 text-3xl font-bold text-gray-900">
+              Verify your email
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              We've sent a 6-digit code to{" "}
+              <span className="font-medium text-gray-900">{email}</span>
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Mail className="h-5 w-5 text-primary mr-2" />
+                Email Verification
+              </CardTitle>
+              <CardDescription>
+                Enter the 6-digit code sent to your email address
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label htmlFor="otpCode" className="block text-sm font-medium text-gray-700">
+                    Verification Code
+                  </label>
+                  <Input
+                    id="otpCode"
+                    type="text"
+                    required
+                    maxLength={6}
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                    placeholder="Enter 6-digit code"
+                    className="mt-1 text-center text-lg font-mono tracking-widest"
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading || otpCode.length !== 6}
+                >
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <ButtonLoader size="sm" />
+                      Verifying...
+                    </div>
+                  ) : (
+                    "Verify Email"
+                  )}
+                </Button>
+              </form>
+
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-600">
+                  Didn't receive the code?{" "}
+                  <button
+                    onClick={handleResendOtp}
+                    disabled={isResending}
+                    className="font-medium text-primary hover:text-primary/80 disabled:opacity-50 flex items-center gap-1"
+                  >
+                    {isResending ? (
+                      <>
+                        <ButtonLoader size="sm" />
+                        Sending...
+                      </>
+                    ) : (
+                      "Resend OTP"
+                    )}
+                  </button>
+                </p>
+              </div>
+
+              <div className="mt-6">
+                <Link
+                  href="/auth/register"
+                  className="flex items-center justify-center text-sm text-gray-600 hover:text-gray-900"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Back to registration
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Mail className="h-5 w-5 text-primary mr-2" />
-              Email Verification
-            </CardTitle>
-            <CardDescription>
-              Enter the 6-digit code sent to your email address
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="otpCode" className="block text-sm font-medium text-gray-700">
-                  Verification Code
-                </label>
-                <Input
-                  id="otpCode"
-                  type="text"
-                  required
-                  maxLength={6}
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                  placeholder="Enter 6-digit code"
-                  className="mt-1 text-center text-lg font-mono tracking-widest"
-                />
-              </div>              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading || otpCode.length !== 6}
-              >
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <ButtonLoader size="sm" />
-                    Verifying...
-                  </div>
-                ) : (
-                  "Verify Email"
-                )}
-              </Button>
-            </form>            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Didn't receive the code?{" "}
-                <button
-                  onClick={handleResendOtp}
-                  disabled={isResending}
-                  className="font-medium text-primary hover:text-primary/80 disabled:opacity-50 flex items-center gap-1"
-                >
-                  {isResending ? (
-                    <>
-                      <ButtonLoader size="sm" />
-                      Sending...
-                    </>
-                  ) : (
-                    "Resend OTP"
-                  )}
-                </button>              </p>
-            </div>
-
-            <div className="mt-6">
-              <Link                href="/auth/register"
-                className="flex items-center justify-center text-sm text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                Back to registration
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      
+      <Footer />
     </div>
   )
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -35,19 +35,37 @@ export function ApplicationModal({
   onUpdateStatus, 
   isLoading 
 }: ApplicationModalProps) {
-  if (!isOpen || !application) return null;
+  const [localApplication, setLocalApplication] = useState(application);
 
-  const applicant = application.applicant;
+  // Update local state when application prop changes
+  useEffect(() => {
+    setLocalApplication(application);
+  }, [application]);
+
+  if (!isOpen || !localApplication) return null;
+
+  const applicant = localApplication.applicant;
   const profile = applicant.userProfile;
+
+  const handleStatusUpdate = async (applicationId: string, status: string) => {
+    // Optimistically update local state for immediate UI feedback
+    setLocalApplication(prev => ({
+      ...prev,
+      status,
+      reviewedAt: new Date().toISOString()
+    }));
+    
+    // Call parent update function
+    await onUpdateStatus(applicationId, status);
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <div>
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">          <div>
             <h2 className="text-xl font-semibold text-gray-900">Application Review</h2>
-            <p className="text-sm text-gray-600">For position: {application.job.title}</p>
+            <p className="text-sm text-gray-600">For position: {localApplication.job.title}</p>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="h-5 w-5" />
@@ -64,10 +82,9 @@ export function ApplicationModal({
                   {profile?.firstName && profile?.lastName 
                     ? `${profile.firstName} ${profile.lastName}` 
                     : applicant.email}
-                </CardTitle>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(application.status)}`}>
-                  <span className="mr-2">{getStatusIcon(application.status)}</span>
-                  {application.status}
+                </CardTitle>                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(localApplication.status)}`}>
+                  <span className="mr-2">{getStatusIcon(localApplication.status)}</span>
+                  {localApplication.status}
                 </span>
               </div>
             </CardHeader>
@@ -156,10 +173,8 @@ export function ApplicationModal({
                 </div>
               )}
             </CardContent>
-          </Card>
-
-          {/* Cover Letter */}
-          {application.coverLetter && (
+          </Card>          {/* Cover Letter */}
+          {localApplication.coverLetter && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
@@ -169,7 +184,7 @@ export function ApplicationModal({
               </CardHeader>
               <CardContent>
                 <div className="prose max-w-none">
-                  <p className="text-gray-700 whitespace-pre-wrap">{application.coverLetter}</p>
+                  <p className="text-gray-700 whitespace-pre-wrap">{localApplication.coverLetter}</p>
                 </div>
               </CardContent>
             </Card>
@@ -269,64 +284,89 @@ export function ApplicationModal({
               </CardContent>
             </Card>
           )}
-        </div>
-
-        {/* Actions Footer */}
+        </div>        {/* Actions Footer */}
         <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4">
-          <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
-            <Button variant="outline" onClick={onClose} className="order-last sm:order-first">
-              Close
-            </Button>
-
-            {application.status === 'PENDING' && (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => onUpdateStatus(application.id, 'REVIEWED')}
-                  disabled={isLoading}
-                >
-                  Mark as Reviewed
-                </Button>
+          <div className="flex flex-col gap-4">            {/* Status Update Section */}
+            <div className="flex flex-col gap-3">              <p className="text-sm font-medium text-gray-700">
+                Update Application Status:
+                <span className="ml-2 text-xs font-normal text-gray-500">
+                  (Currently: {localApplication.status})
+                </span>
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {localApplication.status !== 'PENDING' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleStatusUpdate(localApplication.id, 'PENDING')}
+                    disabled={isLoading}
+                    className="hover:bg-yellow-50 hover:border-yellow-300"
+                  >
+                    Mark as Pending
+                  </Button>
+                )}
                 
-                <Button
-                  variant="outline"
-                  onClick={() => onUpdateStatus(application.id, 'REJECTED')}
-                  disabled={isLoading}
-                  className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
-                >
-                  Reject
-                </Button>
+                {localApplication.status !== 'VIEWED' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleStatusUpdate(localApplication.id, 'VIEWED')}
+                    disabled={isLoading}
+                    className="hover:bg-blue-50 hover:border-blue-300"
+                  >
+                    Mark as Reviewed
+                  </Button>
+                )}
                 
-                <Button
-                  onClick={() => onUpdateStatus(application.id, 'ACCEPTED')}
-                  disabled={isLoading}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  Accept Application
-                </Button>
-              </>
-            )}
-
-            {application.status === 'VIEWED' && (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => onUpdateStatus(application.id, 'REJECTED')}
-                  disabled={isLoading}
-                  className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
-                >
-                  Reject
-                </Button>
+                {localApplication.status !== 'ACCEPTED' && (
+                  <Button
+                    size="sm"
+                    onClick={() => handleStatusUpdate(localApplication.id, 'ACCEPTED')}
+                    disabled={isLoading}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    Accept Application
+                  </Button>
+                )}
                 
-                <Button
-                  onClick={() => onUpdateStatus(application.id, 'ACCEPTED')}
-                  disabled={isLoading}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  Accept Application
-                </Button>
-              </>
-            )}
+                {localApplication.status !== 'REJECTED' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleStatusUpdate(localApplication.id, 'REJECTED')}
+                    disabled={isLoading}
+                    className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300 hover:bg-red-50"
+                  >
+                    Reject Application
+                  </Button>
+                )}
+              </div>
+              
+              {/* Current Status Info */}
+              <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <span>
+                    <strong>Current status:</strong> 
+                    <span className={`ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(localApplication.status)}`}>
+                      <span className="mr-1">{getStatusIcon(localApplication.status)}</span>
+                      {localApplication.status}
+                    </span>
+                  </span>
+                  {localApplication.reviewedAt && (
+                    <span className="text-xs text-gray-500">
+                      Last updated: {new Date(localApplication.reviewedAt).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {/* Close Button */}
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={onClose}>
+                Close
+              </Button>
+            </div>
           </div>
         </div>
       </div>

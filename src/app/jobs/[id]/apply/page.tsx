@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { HiringLoader } from '@/components/ui/loader';
+import { Navbar, Footer } from '@/components/shared';
 import { 
   ArrowLeft,
   Building,
@@ -167,30 +168,39 @@ export default function JobApplyPage({ params }: JobApplyPageProps) {
   const getCompanyName = (job: Job) => {
     return job.employer?.companyProfile?.companyName || job.employer?.name || 'Company';
   };
-
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-green-50">
-        <HiringLoader size="xl" />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-green-50">
+        <Navbar />
+        <div className="flex items-center justify-center h-screen">
+          <HiringLoader size="xl" />
+        </div>
+        <Footer />
       </div>
     );
   }
 
   if (!job) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-green-50">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Job Not Found</h1>
-          <Link href="/jobs">
-            <Button>Browse All Jobs</Button>
-          </Link>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-green-50">
+        <Navbar />
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Job Not Found</h1>
+            <Link href="/jobs">
+              <Button>Browse All Jobs</Button>
+            </Link>
+          </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-green-50">
+      <Navbar />
+      
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -206,6 +216,7 @@ export default function JobApplyPage({ params }: JobApplyPageProps) {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* ...existing content... */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Job Summary */}
           <div className="lg:col-span-1">
@@ -328,6 +339,8 @@ export default function JobApplyPage({ params }: JobApplyPageProps) {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }

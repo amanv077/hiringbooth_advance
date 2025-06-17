@@ -146,11 +146,33 @@ export default function EmployerDashboard() {
       // Set applications to empty array to prevent loading issues
       setApplications([]);
     }
-  };
-
-  const updateApplicationStatus = async (applicationId: string, status: string) => {
+  };  const updateApplicationStatus = async (applicationId: string, status: string) => {
     setIsLoading(true);
     const loadingToast = toast.loading('Updating application status...');
+    
+    // Optimistically update the UI immediately
+    const updateApplicationInState = (apps: Application[]) => 
+      apps.map(app => 
+        app.id === applicationId 
+          ? { ...app, status: status as any, reviewedAt: new Date().toISOString() }
+          : app
+      );
+    
+    // Update applications state immediately
+    setApplications(prev => updateApplicationInState(prev));
+      // Update jobs state if the application is part of a job's applications
+    setJobs(prev => prev.map(job => ({
+      ...job,
+      applications: job.applications ? updateApplicationInState(job.applications) : []
+    })));
+    
+    // Update selectedJob if it's the one containing this application
+    if (selectedJob && selectedJob.applications?.some(app => app.id === applicationId)) {
+      setSelectedJob(prev => prev ? {
+        ...prev,
+        applications: prev.applications ? updateApplicationInState(prev.applications) : []
+      } : null);
+    }
     
     try {
       const token = localStorage.getItem('authToken');
@@ -164,17 +186,49 @@ export default function EmployerDashboard() {
       });
 
       if (response.ok) {
+        const data = await response.json();
         toast.success('Application status updated successfully!', {
           id: loadingToast,
           icon: '✅',
         });
-        fetchApplications(token!);
+          // Update with the actual response data to ensure consistency
+        setApplications(prev => prev.map(app => 
+          app.id === applicationId ? data.application : app
+        ));
+        
+        setJobs(prev => prev.map(job => ({
+          ...job,
+          applications: job.applications ? job.applications.map(app => 
+            app.id === applicationId ? data.application : app
+          ) : []
+        })));
+        
+        // Update selectedJob if it contains this application
+        if (selectedJob && selectedJob.applications?.some(app => app.id === applicationId)) {
+          setSelectedJob(prev => prev ? {
+            ...prev,
+            applications: prev.applications ? prev.applications.map(app => 
+              app.id === applicationId ? data.application : app
+            ) : []
+          } : null);
+        }
+        
       } else {
+        // Revert the optimistic update on error
+        setApplications(prev => prev.map(app => 
+          app.id === applicationId 
+            ? { ...app, status: app.status } // This will revert to original state
+            : app
+        ));
+        
         const error = await response.json();
         toast.error(error.error || 'Failed to update application status', {
           id: loadingToast,
           icon: '❌',
         });
+        
+        // Fetch fresh data to ensure consistency
+        fetchApplications(token!);
       }
     } catch (error) {
       console.error('Error updating application:', error);
@@ -182,6 +236,12 @@ export default function EmployerDashboard() {
         id: loadingToast,
         icon: '❌',
       });
+      
+      // Fetch fresh data on error
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        fetchApplications(token);
+      }
     } finally {
       setIsLoading(false);
     }

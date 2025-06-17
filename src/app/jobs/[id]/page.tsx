@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { HiringLoader } from '@/components/ui/loader';
+import { Navbar, Footer } from '@/components/shared';
 import { 
   MapPin, 
   Clock, 
@@ -180,9 +181,10 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-green-50">
+      <Navbar />
+      
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -439,10 +441,11 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                   </div>
                 </div>
               </CardContent>
-            </Card>
-          </div>
+            </Card>          </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }

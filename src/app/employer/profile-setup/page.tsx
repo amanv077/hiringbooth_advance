@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import CompanyProfileForm from '@/components/forms/CompanyProfileForm';
 import CompanyProfileView from '@/components/forms/CompanyProfileView';
-import { Navbar } from '@/components/shared/Navbar';
+import { Navbar, Footer } from '@/components/shared';
 import toast from 'react-hot-toast';
 
 export default function EmployerProfileSetup() {
@@ -141,6 +141,7 @@ export default function EmployerProfileSetup() {
           )        )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

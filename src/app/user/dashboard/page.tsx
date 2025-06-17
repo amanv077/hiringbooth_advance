@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Search, Briefcase, MapPin, Clock, Building, Eye, CheckCircle, XCircle, Clock4, User, LogOut } from 'lucide-react';
 import Link from 'next/link';
-import { Navbar } from '@/components/shared/Navbar';
+import { Navbar, Footer } from '@/components/shared';
 import toast from 'react-hot-toast';
 
 interface Job {
@@ -485,10 +485,11 @@ export default function UserDashboard() {
               >
                 {isLoading ? 'Submitting...' : 'Submit Application'}
               </Button>
-            </div>
-          </div>
+            </div>          </div>
         </div>
       )}
+      
+      <Footer />
     </div>
   );
 }

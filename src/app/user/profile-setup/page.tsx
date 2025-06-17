@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import UserProfileForm from '@/components/forms/UserProfileForm';
-import { Navbar } from '@/components/shared/Navbar';
+import { Navbar, Footer } from '@/components/shared';
 import toast from 'react-hot-toast';
 
 export default function UserProfileSetup() {
@@ -101,9 +101,9 @@ export default function UserProfileSetup() {
           initialData={user.profile}
           onSubmit={handleSubmit}
           isLoading={isLoading}
-        />
-        </div>
+        />        </div>
       </div>
+      <Footer />
     </div>
   );
 }

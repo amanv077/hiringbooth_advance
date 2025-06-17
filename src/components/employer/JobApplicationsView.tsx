@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Users, Filter, Search } from 'lucide-react';
@@ -27,8 +27,17 @@ export function JobApplicationsView({
   const [showModal, setShowModal] = useState(false);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
-
   const stats = getApplicationStats(applications);
+  
+  // Sync selectedApplication with updated applications data
+  useEffect(() => {
+    if (selectedApplication) {
+      const updatedApplication = applications.find(app => app.id === selectedApplication.id);
+      if (updatedApplication) {
+        setSelectedApplication(updatedApplication);
+      }
+    }
+  }, [applications, selectedApplication?.id]);
   
   const filteredApplications = applications.filter(app => {
     const matchesStatus = statusFilter === 'ALL' || app.status === statusFilter;
@@ -49,15 +58,17 @@ export function JobApplicationsView({
     setShowModal(false);
     setSelectedApplication(null);
   };
-
   const handleUpdateStatus = async (applicationId: string, status: string) => {
     await onUpdateStatus(applicationId, status);
+    
+    // Update the selected application in the modal immediately
     if (selectedApplication?.id === applicationId) {
-      // Update the selected application status
-      setSelectedApplication({
+      const updatedApplication = {
         ...selectedApplication,
-        status: status === 'REVIEWED' ? 'VIEWED' : status
-      });
+        status: status === 'REVIEWED' ? 'VIEWED' : status,
+        reviewedAt: new Date().toISOString()
+      };
+      setSelectedApplication(updatedApplication);
     }
   };
 
@@ -148,11 +159,10 @@ export function JobApplicationsView({
       </Card>
 
       {/* Applications List */}
-      <div className="space-y-4">
-        {filteredApplications.length > 0 ? (
+      <div className="space-y-4">        {filteredApplications.length > 0 ? (
           filteredApplications.map((application) => (
             <ApplicationCard
-              key={application.id}
+              key={`${application.id}-${application.status}-${application.reviewedAt || 'new'}`}
               application={application}
               onViewDetails={handleViewDetails}
               onUpdateStatus={handleUpdateStatus}

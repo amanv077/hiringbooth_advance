@@ -97,83 +97,77 @@ export function ApplicationCard({
               </div>
             )}
           </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-2 pt-3 border-t border-gray-100">
+        </div>        {/* Actions */}
+        <div className="flex flex-col gap-3 pt-3 border-t border-gray-100">
           <Button
             variant="outline"
             size="sm"
             onClick={() => onViewDetails(application)}
-            className="flex-1 sm:flex-none"
+            className="w-full"
           >
             <Eye className="h-4 w-4 mr-2" />
             View Full Profile
           </Button>
 
-          {application.status === 'PENDING' && (
-            <>
+          {/* Quick Status Actions */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {application.status !== 'PENDING' && (
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onUpdateStatus(application.id, 'REVIEWED')}
+                onClick={() => onUpdateStatus(application.id, 'PENDING')}
                 disabled={isLoading}
-                className="flex-1 sm:flex-none"
+                className="text-xs"
               >
-                Mark as Reviewed
+                Set Pending
               </Button>
-              
+            )}
+            
+            {application.status !== 'VIEWED' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onUpdateStatus(application.id, 'VIEWED')}
+                disabled={isLoading}
+                className="text-xs"
+              >
+                Mark Reviewed
+              </Button>
+            )}
+            
+            {application.status !== 'ACCEPTED' && (
               <Button
                 size="sm"
                 onClick={() => onUpdateStatus(application.id, 'ACCEPTED')}
                 disabled={isLoading}
-                className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700"
+                className="text-xs bg-green-600 hover:bg-green-700"
               >
                 Accept
               </Button>
-              
+            )}
+            
+            {application.status !== 'REJECTED' && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => onUpdateStatus(application.id, 'REJECTED')}
                 disabled={isLoading}
-                className="flex-1 sm:flex-none text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                className="text-xs text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
               >
                 Reject
               </Button>
-            </>
-          )}
+            )}
+          </div>
 
-          {application.status === 'VIEWED' && (
-            <>
-              <Button
-                size="sm"
-                onClick={() => onUpdateStatus(application.id, 'ACCEPTED')}
-                disabled={isLoading}
-                className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700"
-              >
-                Accept
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onUpdateStatus(application.id, 'REJECTED')}
-                disabled={isLoading}
-                className="flex-1 sm:flex-none text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
-              >
-                Reject
-              </Button>
-            </>
-          )}
-
-          {(application.status === 'ACCEPTED' || application.status === 'REJECTED') && (
-            <div className="text-sm text-gray-500 py-2">
-              Decision made on {application.reviewedAt ? formatDate(application.reviewedAt) : 'N/A'}
-            </div>
-          )}
+          {/* Status Info */}
+          <div className="text-xs text-gray-500 text-center">
+            {application.reviewedAt ? (
+              `Last updated: ${formatDate(application.reviewedAt)}`
+            ) : (
+              `Applied: ${formatDate(application.createdAt)}`
+            )}
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      </CardContent>    </Card>
   );
 }

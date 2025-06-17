@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ButtonLoader } from "@/components/ui/loader"
+import { Navbar, Footer } from "@/components/shared"
 import Link from "next/link"
 import { Mail, Lock } from "lucide-react"
 import toast from "react-hot-toast"
@@ -68,25 +69,27 @@ export default function LoginPage() {
       setIsLoading(false)
     }
   }
-
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="text-center">
-          <Link href="/" className="text-2xl font-bold text-primary">
-            HiringBooth
-          </Link>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Don't have an account?{" "}
-            <Link href="/auth/register" className="font-medium text-primary hover:text-primary/80">
-              Sign up
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      
+      <div className="flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="text-center">
+            <Link href="/" className="text-2xl font-bold text-primary">
+              HiringBooth
             </Link>
-          </p>
+            <h2 className="mt-6 text-3xl font-bold text-gray-900">
+              Sign in to your account
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Don't have an account?{" "}
+              <Link href="/auth/register" className="font-medium text-primary hover:text-primary/80">
+                Sign up
+              </Link>
+            </p>
+          </div>
         </div>
-      </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <Card>
@@ -190,10 +193,12 @@ export default function LoginPage() {
                   </Button>
                 </Link>
               </div>
-            </div>
-          </CardContent>
+            </div>          </CardContent>
         </Card>
       </div>
+      
+      </div>
+      <Footer />
     </div>
   )
 }

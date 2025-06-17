@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { User, LogOut, Menu, Bell } from 'lucide-react';
+import { User, LogOut, Menu, Bell, Plus, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 
 interface EmployerHeaderProps {
@@ -30,10 +30,19 @@ export function EmployerHeader({
               HiringBooth
             </Link>
             <span className="hidden sm:block ml-4 text-gray-600">Employer Dashboard</span>
-          </div>
-
-          {/* Desktop Navigation */}
+          </div>          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* Post Job Button - Prominent */}
+            <Link href="/employer/jobs/create">
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                size="sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Post Job
+              </Button>
+            </Link>
+
             {/* User Info */}
             <div className="text-right">
               <div className="text-sm font-medium text-gray-900">
@@ -77,12 +86,21 @@ export function EmployerHeader({
               <Menu className="h-6 w-6" />
             </Button>
           </div>
-        </div>
-
-        {/* Mobile Navigation Menu */}
+        </div>        {/* Mobile Navigation Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-gray-200">
             <div className="px-2 pt-2 pb-3 space-y-1">
+              {/* Post Job Button - Mobile */}
+              <Link href="/employer/jobs/create" className="block">
+                <Button 
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white mb-3"
+                  size="sm"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Post New Job
+                </Button>
+              </Link>
+
               {/* User Info */}
               <div className="px-3 py-2 border-b border-gray-200">
                 <div className="text-base font-medium text-gray-900">
