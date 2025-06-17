@@ -32,9 +32,69 @@ export function Footer() {
                   <Instagram className="h-5 w-5" />
                 </Link>
               </div>
+            </div>            {/* Company */}
+            <div>
+              <h4 className="font-semibold text-white mb-4">Company</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link href="/about" className="text-gray-400 hover:text-white transition-colors">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/careers" className="text-gray-400 hover:text-white transition-colors">
+                    Careers
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
+                    Contact Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/blog" className="text-gray-400 hover:text-white transition-colors">
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/news" className="text-gray-400 hover:text-white transition-colors">
+                    Press & News
+                  </Link>
+                </li>
+              </ul>
             </div>
 
-            {/* For Job Seekers */}
+            {/* For Employers */}
+            <div>
+              <h4 className="font-semibold text-white mb-4">For Employers</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link href="/employer/jobs/create" className="text-gray-400 hover:text-white transition-colors">
+                    Post a Job
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/talent-search" className="text-gray-400 hover:text-white transition-colors">
+                    Search Talent
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/recruiting-solutions" className="text-gray-400 hover:text-white transition-colors">
+                    Recruiting Solutions
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/employer-branding" className="text-gray-400 hover:text-white transition-colors">
+                    Employer Branding
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/pricing" className="text-gray-400 hover:text-white transition-colors">
+                    Pricing
+                  </Link>
+                </li>
+              </ul>
+            </div>            {/* For Job Seekers */}
             <div>
               <h4 className="font-semibold text-white mb-4">For Job Seekers</h4>
               <ul className="space-y-2 text-sm">
@@ -66,41 +126,9 @@ export function Footer() {
               </ul>
             </div>
 
-            {/* For Employers */}
+            {/* Support & Legal */}
             <div>
-              <h4 className="font-semibold text-white mb-4">For Employers</h4>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link href="/post-job" className="text-gray-400 hover:text-white transition-colors">
-                    Post a Job
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/talent-search" className="text-gray-400 hover:text-white transition-colors">
-                    Search Talent
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/recruiting-solutions" className="text-gray-400 hover:text-white transition-colors">
-                    Recruiting Solutions
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/employer-branding" className="text-gray-400 hover:text-white transition-colors">
-                    Employer Branding
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/pricing" className="text-gray-400 hover:text-white transition-colors">
-                    Pricing
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Support & Contact */}
-            <div>
-              <h4 className="font-semibold text-white mb-4">Support</h4>
+              <h4 className="font-semibold text-white mb-4">Support & Legal</h4>
               <ul className="space-y-2 text-sm">
                 <li>
                   <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
@@ -141,28 +169,32 @@ export function Footer() {
                 </div>
                 <div className="flex items-center text-gray-400 text-sm">
                   <MapPin className="h-4 w-4 mr-2" />
-                  <span>San Francisco, CA</span>
+                  <span>New York, NY</span>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Bottom Bar */}
+        </div>        {/* Bottom Bar */}
         <div className="border-t border-gray-800 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
               &copy; {currentYear} HiringBooth. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
+              <Link href="/about" className="text-gray-400 hover:text-white text-sm transition-colors">
+                About
+              </Link>
+              <Link href="/careers" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Careers
+              </Link>
+              <Link href="/contact" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Contact
+              </Link>
               <Link href="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">
                 Privacy
               </Link>
               <Link href="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">
                 Terms
-              </Link>
-              <Link href="/cookies" className="text-gray-400 hover:text-white text-sm transition-colors">
-                Cookies
               </Link>
             </div>
           </div>

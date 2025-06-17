@@ -99,11 +99,11 @@ export function Navbar() {
             </Link>
           </div>          {/* Desktop Navigation - Centered */}
           <div className="hidden md:flex items-center justify-center flex-1">
-            <div className="flex items-center space-x-10">
+            <div className="flex items-center space-x-2">
               {!user && (
                 <Link
                   href="/"
-                  className={`px-6 py-2.5 text-base font-semibold rounded-lg transition-all duration-300 hover:scale-105 ${
+                  className={`px-5 py-2.5 text-base font-semibold rounded-lg transition-all duration-300 hover:scale-105 ${
                     isActive("/")
                       ? "text-blue-600 bg-blue-50 shadow-md"
                       : "text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:shadow-sm"
@@ -114,7 +114,7 @@ export function Navbar() {
               )}
               <Link
                 href="/jobs"
-                className={`px-6 py-2.5 text-base font-semibold rounded-lg transition-all duration-300 hover:scale-105 ${
+                className={`px-5 py-2.5 text-base font-semibold rounded-lg transition-all duration-300 hover:scale-105 ${
                   isActive("/jobs")
                     ? "text-blue-600 bg-blue-50 shadow-md"
                     : "text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:shadow-sm"
@@ -122,10 +122,40 @@ export function Navbar() {
               >
                 Jobs
               </Link>
+              <Link
+                href="/about"
+                className={`px-5 py-2.5 text-base font-semibold rounded-lg transition-all duration-300 hover:scale-105 ${
+                  isActive("/about")
+                    ? "text-blue-600 bg-blue-50 shadow-md"
+                    : "text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:shadow-sm"
+                }`}
+              >
+                About
+              </Link>
+              <Link
+                href="/careers"
+                className={`px-5 py-2.5 text-base font-semibold rounded-lg transition-all duration-300 hover:scale-105 ${
+                  isActive("/careers")
+                    ? "text-blue-600 bg-blue-50 shadow-md"
+                    : "text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:shadow-sm"
+                }`}
+              >
+                Careers
+              </Link>
+              <Link
+                href="/contact"
+                className={`px-5 py-2.5 text-base font-semibold rounded-lg transition-all duration-300 hover:scale-105 ${
+                  isActive("/contact")
+                    ? "text-blue-600 bg-blue-50 shadow-md"
+                    : "text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:shadow-sm"
+                }`}
+              >
+                Contact
+              </Link>
               {(user?.role === "EMPLOYER" || user?.role === "employer") && (
                 <Link
                   href="/employer/jobs/create"
-                  className={`px-6 py-2.5 text-base font-semibold rounded-lg transition-all duration-300 hover:scale-105 ${
+                  className={`px-5 py-2.5 text-base font-semibold rounded-lg transition-all duration-300 hover:scale-105 ${
                     isActive("/employer/jobs/create")
                       ? "text-blue-600 bg-blue-50 shadow-md"
                       : "text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:shadow-sm"
@@ -202,7 +232,7 @@ export function Navbar() {
         </div>
       </div>      {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-gray-200 bg-white shadow-lg">          <div className="px-6 py-6 space-y-5">
+        <div className="md:hidden border-t border-gray-200 bg-white shadow-lg">          <div className="px-6 py-6 space-y-4">
             {!user && (
               <Link
                 href="/"
@@ -227,6 +257,39 @@ export function Navbar() {
             >
               Jobs
             </Link>
+            <Link
+              href="/about"
+              onClick={closeMenu}
+              className={`block text-base font-semibold py-3 px-5 rounded-lg transition-all duration-300 ${
+                isActive("/about")
+                  ? "text-blue-600 bg-blue-50 shadow-md"
+                  : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+              }`}
+            >
+              About
+            </Link>
+            <Link
+              href="/careers"
+              onClick={closeMenu}
+              className={`block text-base font-semibold py-3 px-5 rounded-lg transition-all duration-300 ${
+                isActive("/careers")
+                  ? "text-blue-600 bg-blue-50 shadow-md"
+                  : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+              }`}
+            >
+              Careers
+            </Link>
+            <Link
+              href="/contact"
+              onClick={closeMenu}
+              className={`block text-base font-semibold py-3 px-5 rounded-lg transition-all duration-300 ${
+                isActive("/contact")
+                  ? "text-blue-600 bg-blue-50 shadow-md"
+                  : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+              }`}
+            >
+              Contact
+            </Link>
             {(user?.role === "EMPLOYER" || user?.role === "employer") && (
               <Link
                 href="/employer/jobs/create"
@@ -240,7 +303,7 @@ export function Navbar() {
                 Post Job
               </Link>
             )}            {/* Mobile Auth */}
-            <div className="border-t border-gray-200 pt-5 mt-5">
+            <div className="border-t border-gray-200 pt-4 mt-4">
               {isLoading ? (
                 <div className="flex justify-center py-4">
                   <div className="w-7 h-7 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
