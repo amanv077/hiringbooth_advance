@@ -68,12 +68,18 @@ export function Navbar() {
 
   const closeMenu = () => {
     setIsMenuOpen(false);
-  };
-  const getDashboardLink = () => {
+  };  const getDashboardLink = () => {
     if (!user) return '/';
     if (user.role === 'ADMIN') return '/admin/dashboard';
     if (user.role === 'EMPLOYER' || user.role === 'employer') return '/employer/dashboard';
     return '/user/dashboard';
+  };
+
+  const getProfileLink = () => {
+    if (!user) return '/';
+    if (user.role === 'ADMIN') return '/admin/profile';
+    if (user.role === 'EMPLOYER' || user.role === 'employer') return '/employer/profile-setup';
+    return '/user/profile-setup';
   };
 
   const isActive = (path: string) => {
@@ -136,14 +142,20 @@ export function Navbar() {
           <div className="hidden md:block">
             {isLoading ? (
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-            ) : user ? (
-              <div className="flex items-center space-x-4">
+            ) : user ? (              <div className="flex items-center space-x-4">
                 <Link
                   href={getDashboardLink()}
                   className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors"
                 >
                   <User className="h-4 w-4 mr-1" />
                   Dashboard
+                </Link>
+                <Link
+                  href={getProfileLink()}
+                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors"
+                >
+                  <Settings className="h-4 w-4 mr-1" />
+                  Profile
                 </Link>
                 <Button
                   variant="ghost"
@@ -238,8 +250,7 @@ export function Navbar() {
                 <div className="flex justify-center py-2">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                 </div>
-              ) : user ? (
-                <div className="space-y-1">
+              ) : user ? (                <div className="space-y-1">
                   <Link
                     href={getDashboardLink()}
                     onClick={closeMenu}
@@ -247,6 +258,14 @@ export function Navbar() {
                   >
                     <User className="h-4 w-4 mr-2" />
                     Dashboard
+                  </Link>
+                  <Link
+                    href={getProfileLink()}
+                    onClick={closeMenu}
+                    className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors"
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    Profile
                   </Link>
                   <button
                     onClick={() => {

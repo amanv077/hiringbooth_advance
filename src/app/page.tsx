@@ -40,8 +40,10 @@ export default function HomePage() {
             } else if (data.user.role === 'ADMIN') {
               router.push('/admin/dashboard');
               return;
+            } else if (data.user.role === 'USER') {
+              router.push('/user/dashboard');
+              return;
             }
-            // If USER role, stay on homepage
           }
         } catch (error) {
           console.error('Error checking user role:', error);
