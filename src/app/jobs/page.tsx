@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { HiringLoader } from '@/components/ui/loader';
+import { Navbar, Footer } from '@/components/shared';
 import { 
   MapPin, 
   Clock, 
@@ -17,7 +18,9 @@ import {
   Calendar,
   Users,
   Star,
-  Zap
+  Zap,
+  Eye,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -50,10 +53,218 @@ interface Job {
       companySize?: string;
       logoUrl?: string;
     };
-  };
-  _count: {
+  };  _count: {
     applications: number;
   };
+}
+
+// Utility functions
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
+
+const formatEmploymentType = (type: string) => {
+  return type.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+};
+
+const formatExperienceLevel = (level: string) => {
+  return level.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+};
+
+// Job Detail Modal Component
+interface JobDetailModalProps {
+  job: Job;
+  isOpen: boolean;
+  onClose: () => void;
+  userRole: string | null;
+  onApply: () => void;
+}
+
+function JobDetailModal({ job, isOpen, onClose, userRole, onApply }: JobDetailModalProps) {
+  if (!isOpen) return null;
+
+  const getCompanyName = (job: Job) => {
+    return job.employer?.companyProfile?.companyName || job.employer?.name || 'Company';
+  };
+
+  const parseJsonArray = (jsonString?: string) => {
+    if (!jsonString) return [];
+    try {
+      return JSON.parse(jsonString);
+    } catch {
+      return [];
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-4xl w-full my-8 shadow-2xl">
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-lg">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-2xl font-bold text-gray-900 truncate">{job.title}</h2>
+            <p className="text-lg text-gray-600 flex items-center mt-1">
+              <Building className="h-4 w-4 mr-2" />
+              {getCompanyName(job)}
+            </p>
+            {job.urgency === 'URGENT' && (
+              <div className="flex items-center text-red-600 mt-2">
+                <Zap className="h-4 w-4 mr-1" />
+                <span className="text-sm font-medium">Urgent Hiring</span>
+              </div>
+            )}
+          </div>
+          <Button variant="ghost" size="sm" onClick={onClose} className="flex-shrink-0">
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+
+        <div className="max-h-[70vh] overflow-y-auto">
+          <div className="p-6 space-y-6">
+            {/* Job Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Job Details</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center">
+                      <MapPin className="h-5 w-5 text-gray-400 mr-3" />
+                      <span>{job.isRemote ? 'Remote' : job.location || 'Location not specified'}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Briefcase className="h-5 w-5 text-gray-400 mr-3" />
+                      <span>{formatEmploymentType(job.employmentType)}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Users className="h-5 w-5 text-gray-400 mr-3" />
+                      <span>{formatExperienceLevel(job.experienceLevel)}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Calendar className="h-5 w-5 text-gray-400 mr-3" />
+                      <span>Posted {formatDate(job.createdAt)}</span>
+                    </div>
+                    {(job.salaryMin || job.salaryMax) && (
+                      <div className="flex items-center">
+                        <DollarSign className="h-5 w-5 text-gray-400 mr-3" />
+                        <span>
+                          {job.salaryMin && job.salaryMax 
+                            ? `${job.currency} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`
+                            : job.salaryMin 
+                              ? `${job.currency} ${job.salaryMin.toLocaleString()}+`
+                              : `Up to ${job.currency} ${job.salaryMax?.toLocaleString()}`
+                          }
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Company Info</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center">
+                      <Building className="h-5 w-5 text-gray-400 mr-3" />
+                      <span>{getCompanyName(job)}</span>
+                    </div>
+                    {job.employer.companyProfile?.industry && (
+                      <div className="flex items-center">
+                        <Briefcase className="h-5 w-5 text-gray-400 mr-3" />
+                        <span>{job.employer.companyProfile.industry}</span>
+                      </div>
+                    )}
+                    {job.employer.companyProfile?.companySize && (
+                      <div className="flex items-center">
+                        <Users className="h-5 w-5 text-gray-400 mr-3" />
+                        <span>{job.employer.companyProfile.companySize}</span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Job Description */}
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Job Description</h3>
+                <div className="prose max-w-none">
+                  <div dangerouslySetInnerHTML={{ __html: job.description }} />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Requirements */}
+            {job.requirements && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Requirements</h3>
+                  <div className="prose max-w-none">
+                    <div dangerouslySetInnerHTML={{ __html: job.requirements }} />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Skills */}
+            {job.skills && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Required Skills</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {parseJsonArray(job.skills).map((skill: string, index: number) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Benefits */}
+            {job.benefits && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Benefits</h3>
+                  <div className="prose max-w-none">
+                    <div dangerouslySetInnerHTML={{ __html: job.benefits }} />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+
+        {/* Action Footer */}
+        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 rounded-b-lg">
+          <div className="flex justify-between items-center">
+            <Button variant="outline" onClick={onClose}>
+              Close
+            </Button>
+            {userRole !== 'EMPLOYER' && (
+              <Button onClick={onApply} className="bg-blue-600 hover:bg-blue-700">
+                Apply for this Job
+              </Button>
+            )}
+            {userRole === 'EMPLOYER' && (
+              <Button variant="outline" onClick={() => window.open('/employer/dashboard', '_blank')}>
+                View Dashboard
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function JobsPage() {
@@ -66,6 +277,8 @@ export default function JobsPage() {
   const [experienceFilter, setExperienceFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [showJobModal, setShowJobModal] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -199,17 +412,21 @@ export default function JobsPage() {
       return [];
     }
   };
-
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-green-50">
-        <HiringLoader size="xl" />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-green-50">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+          <HiringLoader size="xl" />
+        </div>
+        <Footer />
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-green-50">
+      <Navbar />
+      
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -298,15 +515,16 @@ export default function JobsPage() {
               </div>
             </div>
           )}
-        </div>
-
-        {/* Jobs Grid */}
+        </div>        {/* Jobs Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {filteredJobs.map((job) => (
             <Card 
               key={job.id} 
               className="hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-blue-500 group"
-              onClick={() => router.push(`/jobs/${job.id}`)}
+              onClick={() => {
+                setSelectedJob(job);
+                setShowJobModal(true);
+              }}
             >
               <CardContent className="p-6">
                 {/* Header */}
@@ -395,16 +613,17 @@ export default function JobsPage() {
                     <Clock className="h-3 w-3 mr-1" />
                     Posted {formatDate(job.createdAt)}
                   </div>
-                  <div className="flex gap-2">
-                    <Button 
+                  <div className="flex gap-2">                    <Button 
                       variant="outline" 
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        router.push(`/jobs/${job.id}`);
+                        setSelectedJob(job);
+                        setShowJobModal(true);
                       }}
                     >
-                      View Details                    </Button>
+                      View Details
+                    </Button>
                     {userRole !== 'EMPLOYER' && (
                       <Button 
                         size="sm"
@@ -435,9 +654,7 @@ export default function JobsPage() {
               </CardContent>
             </Card>
           ))}
-        </div>
-
-        {/* No Jobs Found */}
+        </div>        {/* No Jobs Found */}
         {filteredJobs.length === 0 && !isLoading && (
           <div className="text-center py-12">
             <Briefcase className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -456,7 +673,25 @@ export default function JobsPage() {
             </Button>
           </div>
         )}
-      </div>
+      </div>      <Footer />
+
+      {/* Job Detail Modal */}
+      {selectedJob && (
+        <JobDetailModal
+          job={selectedJob}
+          isOpen={showJobModal}
+          onClose={() => {
+            setShowJobModal(false);
+            setSelectedJob(null);
+          }}
+          userRole={userRole}
+          onApply={() => {
+            setShowJobModal(false);
+            setSelectedJob(null);
+            handleApplyClick(selectedJob.id);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -135,8 +135,7 @@ export default function LoginPage() {
                   />
                   <Lock className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                 </div>
-              </div>
-
+              </div>              
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <input

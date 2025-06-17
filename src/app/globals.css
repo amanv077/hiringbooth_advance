@@ -326,6 +326,13 @@ button, a, input, select, textarea {
   min-width: 44px;
 }
 
+/* Exception for checkboxes and radio buttons */
+input[type="checkbox"], 
+input[type="radio"] {
+  min-height: auto;
+  min-width: auto;
+}
+
 /* Prevent horizontal scroll on mobile */
 body {
   overflow-x: hidden;

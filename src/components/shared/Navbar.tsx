@@ -88,7 +88,9 @@ export function Navbar() {
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
               <Briefcase className="h-8 w-8 text-blue-600 mr-2" />
-              <span className="text-xl font-bold text-gray-900">HiringBooth</span>
+              <span className="text-xl font-bold text-gray-900">
+                HiringBooth
+              </span>
             </Link>
           </div>
 
@@ -98,9 +100,9 @@ export function Navbar() {
               <Link
                 href="/"
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/') 
-                    ? 'text-blue-600 bg-blue-50' 
-                    : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                  isActive("/")
+                    ? "text-blue-600 bg-blue-50"
+                    : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                 }`}
               >
                 Home
@@ -108,20 +110,20 @@ export function Navbar() {
               <Link
                 href="/jobs"
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/jobs') 
-                    ? 'text-blue-600 bg-blue-50' 
-                    : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                  isActive("/jobs")
+                    ? "text-blue-600 bg-blue-50"
+                    : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                 }`}
               >
                 Browse Jobs
               </Link>
-              {(user?.role === 'EMPLOYER' || user?.role === 'employer') && (
+              {(user?.role === "EMPLOYER" || user?.role === "employer") && (
                 <Link
                   href="/employer/jobs/create"
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive('/employer/jobs/create') 
-                      ? 'text-blue-600 bg-blue-50' 
-                      : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                    isActive("/employer/jobs/create")
+                      ? "text-blue-600 bg-blue-50"
+                      : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                   }`}
                 >
                   Post Job
@@ -156,12 +158,12 @@ export function Navbar() {
             ) : (
               <div className="flex items-center space-x-4">
                 <Link href="/auth/login">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className=" cursor-pointer">
                     Login
                   </Button>
                 </Link>
                 <Link href="/auth/register">
-                  <Button size="sm">
+                  <Button size="sm" className=" cursor-pointer">
                     Sign Up
                   </Button>
                 </Link>
@@ -195,9 +197,9 @@ export function Navbar() {
               href="/"
               onClick={closeMenu}
               className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                isActive('/') 
-                  ? 'text-blue-600 bg-blue-50' 
-                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                isActive("/")
+                  ? "text-blue-600 bg-blue-50"
+                  : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
               }`}
             >
               <Home className="h-4 w-4 mr-2" />
@@ -207,29 +209,29 @@ export function Navbar() {
               href="/jobs"
               onClick={closeMenu}
               className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                isActive('/jobs') 
-                  ? 'text-blue-600 bg-blue-50' 
-                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                isActive("/jobs")
+                  ? "text-blue-600 bg-blue-50"
+                  : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
               }`}
             >
               <Briefcase className="h-4 w-4 mr-2" />
               Browse Jobs
             </Link>
-            {(user?.role === 'EMPLOYER' || user?.role === 'employer') && (
+            {(user?.role === "EMPLOYER" || user?.role === "employer") && (
               <Link
                 href="/employer/jobs/create"
                 onClick={closeMenu}
                 className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                  isActive('/employer/jobs/create') 
-                    ? 'text-blue-600 bg-blue-50' 
-                    : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                  isActive("/employer/jobs/create")
+                    ? "text-blue-600 bg-blue-50"
+                    : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                 }`}
               >
                 <Settings className="h-4 w-4 mr-2" />
                 Post Job
               </Link>
             )}
-            
+
             {/* Mobile Auth Section */}
             <div className="border-t pt-4 mt-4">
               {isLoading ? (
