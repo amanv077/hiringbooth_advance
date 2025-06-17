@@ -20,7 +20,8 @@ import {
   Star,
   Zap,
   Eye,
-  X
+  X,
+  CheckCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -82,9 +83,10 @@ interface JobDetailModalProps {
   onClose: () => void;
   userRole: string | null;
   onApply: () => void;
+  hasApplied: boolean;
 }
 
-function JobDetailModal({ job, isOpen, onClose, userRole, onApply }: JobDetailModalProps) {
+function JobDetailModal({ job, isOpen, onClose, userRole, onApply, hasApplied }: JobDetailModalProps) {
   if (!isOpen) return null;
 
   const getCompanyName = (job: Job) => {
@@ -242,18 +244,25 @@ function JobDetailModal({ job, isOpen, onClose, userRole, onApply }: JobDetailMo
               </Card>
             )}
           </div>
-        </div>
-
-        {/* Action Footer */}
+        </div>        {/* Action Footer */}
         <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 rounded-b-lg">
           <div className="flex justify-between items-center">
             <Button variant="outline" onClick={onClose}>
               Close
             </Button>
             {userRole !== 'EMPLOYER' && (
-              <Button onClick={onApply} className="bg-blue-600 hover:bg-blue-700">
-                Apply for this Job
-              </Button>
+              <>
+                {hasApplied ? (
+                  <Button disabled className="bg-green-600 text-white">
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Applied
+                  </Button>
+                ) : (
+                  <Button onClick={onApply} className="bg-blue-600 hover:bg-blue-700">
+                    Apply for this Job
+                  </Button>
+                )}
+              </>
             )}
             {userRole === 'EMPLOYER' && (
               <Button variant="outline" onClick={() => window.open('/employer/dashboard', '_blank')}>
@@ -270,6 +279,7 @@ function JobDetailModal({ job, isOpen, onClose, userRole, onApply }: JobDetailMo
 export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
+  const [userApplications, setUserApplications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
@@ -280,11 +290,24 @@ export default function JobsPage() {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [showJobModal, setShowJobModal] = useState(false);
   const router = useRouter();
-
   useEffect(() => {
     fetchJobs();
     checkUserRole();
+    
+    // Refresh applications when component mounts (useful when returning from apply page)
+    const token = localStorage.getItem('authToken');
+    if (token && userRole === 'USER') {
+      fetchUserApplications(token);
+    }
   }, []);
+
+  // Refresh applications when userRole changes
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token && userRole === 'USER') {
+      fetchUserApplications(token);
+    }
+  }, [userRole]);
 
   useEffect(() => {
     filterJobs();
@@ -312,9 +335,26 @@ export default function JobsPage() {
       
       if (userResponse.ok) {
         setUserRole('USER');
+        // Fetch user applications if user is logged in
+        fetchUserApplications(token);
       }
     } catch (error) {
       console.error('Error checking user role:', error);
+    }
+  };
+
+  const fetchUserApplications = async (token: string) => {
+    try {
+      const response = await fetch('/api/user/applications', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUserApplications(data.applications || []);
+      }
+    } catch (error) {
+      console.error('Error fetching user applications:', error);
     }
   };
 
@@ -379,8 +419,7 @@ export default function JobsPage() {
 
   const formatExperienceLevel = (level: string) => {
     return level.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
-  };
-  const handleApplyClick = (jobId: string) => {
+  };  const handleApplyClick = (jobId: string) => {
     const token = localStorage.getItem('authToken');
     if (!token) {
       toast.error('Please login to apply for jobs', {
@@ -397,13 +436,20 @@ export default function JobsPage() {
       return;
     }
 
+    // Check if already applied
+    if (hasAppliedToJob(jobId)) {
+      toast.error('You have already applied to this job', {
+        icon: '⚠️',
+      });
+      return;
+    }
+
     router.push(`/jobs/${jobId}/apply`);
   };
 
   const getCompanyName = (job: Job) => {
     return job.employer?.companyProfile?.companyName || job.employer?.name || 'Company';
   };
-
   const parseSkills = (skillsJson?: string) => {
     if (!skillsJson) return [];
     try {
@@ -411,6 +457,10 @@ export default function JobsPage() {
     } catch {
       return [];
     }
+  };
+
+  const hasAppliedToJob = (jobId: string) => {
+    return userApplications.some(app => app.job.id === jobId);
   };
   if (isLoading) {
     return (
@@ -623,18 +673,30 @@ export default function JobsPage() {
                       }}
                     >
                       View Details
-                    </Button>
-                    {userRole !== 'EMPLOYER' && (
-                      <Button 
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleApplyClick(job.id);
-                        }}
-                        className="bg-blue-600 hover:bg-blue-700"
-                      >
-                        Apply Now
-                      </Button>
+                    </Button>                    {userRole !== 'EMPLOYER' && (
+                      <>
+                        {hasAppliedToJob(job.id) ? (
+                          <Button 
+                            size="sm"
+                            disabled
+                            className="bg-green-600 text-white"
+                          >
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Applied
+                          </Button>
+                        ) : (
+                          <Button 
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleApplyClick(job.id);
+                            }}
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            Apply Now
+                          </Button>
+                        )}
+                      </>
                     )}
                     {userRole === 'EMPLOYER' && (
                       <Button 
@@ -673,9 +735,7 @@ export default function JobsPage() {
             </Button>
           </div>
         )}
-      </div>      <Footer />
-
-      {/* Job Detail Modal */}
+      </div>      <Footer />      {/* Job Detail Modal */}
       {selectedJob && (
         <JobDetailModal
           job={selectedJob}
@@ -690,6 +750,7 @@ export default function JobsPage() {
             setSelectedJob(null);
             handleApplyClick(selectedJob.id);
           }}
+          hasApplied={hasAppliedToJob(selectedJob.id)}
         />
       )}
     </div>

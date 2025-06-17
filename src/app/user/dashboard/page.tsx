@@ -5,28 +5,48 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Search, Briefcase, MapPin, Clock, Building, Eye, CheckCircle, XCircle, Clock4, User, LogOut } from 'lucide-react';
+import { Search, Briefcase, MapPin, Clock, Building, Eye, CheckCircle, XCircle, Clock4, User, LogOut, Calendar, Users, Star, Zap, DollarSign, X } from 'lucide-react';
 import Link from 'next/link';
 import { Navbar, Footer } from '@/components/shared';
 import toast from 'react-hot-toast';
+import { stripHtmlTags } from '@/lib/htmlUtils';
 
 interface Job {
   id: string;
   title: string;
   description: string;
-  location: string;
-  type: string;
-  category: string;
+  requirements?: string;
+  location?: string;
+  isRemote?: boolean;
+  employmentType: string;
   experienceLevel: string;
+  urgency?: 'URGENT' | 'NOT_URGENT';
   salaryMin?: number;
   salaryMax?: number;
+  currency?: string;
+  skills?: string;
+  benefits?: string;
+  isActive?: boolean;
   createdAt: string;
-  company: {
-    companyProfile: {
-      companyName: string;
+  deadline?: string;
+  employer?: {
+    id: string;
+    name: string;
+    companyProfile?: {
+      companyName?: string;
+      industry?: string;
+      companySize?: string;
+      logoUrl?: string;
     };
   };
-  _count: {
+  company?: {
+    companyProfile?: {
+      companyName?: string;
+      industry?: string;
+      companySize?: string;
+    };
+  };
+  _count?: {
     applications: number;
   };
 }
@@ -47,12 +67,225 @@ interface Application {
   };
 }
 
+// Utility functions
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
+
+const formatEmploymentType = (type: string) => {
+  return type.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+};
+
+const formatExperienceLevel = (level: string) => {
+  return level.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+};
+
+// Job Detail Modal Component
+interface JobDetailModalProps {
+  job: Job;
+  isOpen: boolean;
+  onClose: () => void;
+  onApply: () => void;
+  hasApplied: boolean;
+}
+
+function JobDetailModal({ job, isOpen, onClose, onApply, hasApplied }: JobDetailModalProps) {
+  if (!isOpen) return null;
+
+  const getCompanyName = (job: Job) => {
+    return job.employer?.companyProfile?.companyName || 
+           job.company?.companyProfile?.companyName || 
+           job.employer?.name || 
+           'Company';
+  };
+
+  const parseJsonArray = (jsonString?: string) => {
+    if (!jsonString) return [];
+    try {
+      return JSON.parse(jsonString);
+    } catch {
+      return [];
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-4xl w-full my-8 shadow-2xl">
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-lg">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-2xl font-bold text-gray-900 truncate">{job.title}</h2>
+            <p className="text-lg text-gray-600 flex items-center mt-1">
+              <Building className="h-4 w-4 mr-2" />
+              {getCompanyName(job)}
+            </p>
+            {job.urgency === 'URGENT' && (
+              <div className="flex items-center text-red-600 mt-2">
+                <Zap className="h-4 w-4 mr-1" />
+                <span className="text-sm font-medium">Urgent Hiring</span>
+              </div>
+            )}
+          </div>
+          <Button variant="ghost" size="sm" onClick={onClose} className="flex-shrink-0">
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+
+        <div className="max-h-[70vh] overflow-y-auto">
+          <div className="p-6 space-y-6">
+            {/* Job Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Job Details</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center">
+                      <MapPin className="h-5 w-5 text-gray-400 mr-3" />
+                      <span>{job.isRemote ? 'Remote' : job.location || 'Location not specified'}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Briefcase className="h-5 w-5 text-gray-400 mr-3" />
+                      <span>{formatEmploymentType(job.employmentType)}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Users className="h-5 w-5 text-gray-400 mr-3" />
+                      <span>{formatExperienceLevel(job.experienceLevel)}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Calendar className="h-5 w-5 text-gray-400 mr-3" />
+                      <span>Posted {formatDate(job.createdAt)}</span>
+                    </div>
+                    {(job.salaryMin || job.salaryMax) && (
+                      <div className="flex items-center">
+                        <DollarSign className="h-5 w-5 text-gray-400 mr-3" />
+                        <span>
+                          {job.salaryMin && job.salaryMax 
+                            ? `${job.currency || '$'} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`
+                            : job.salaryMin 
+                              ? `${job.currency || '$'} ${job.salaryMin.toLocaleString()}+`
+                              : `Up to ${job.currency || '$'} ${job.salaryMax?.toLocaleString()}`
+                          }
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Company Info</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center">
+                      <Building className="h-5 w-5 text-gray-400 mr-3" />
+                      <span>{getCompanyName(job)}</span>
+                    </div>
+                    {(job.employer?.companyProfile?.industry || job.company?.companyProfile?.industry) && (
+                      <div className="flex items-center">
+                        <Briefcase className="h-5 w-5 text-gray-400 mr-3" />
+                        <span>{job.employer?.companyProfile?.industry || job.company?.companyProfile?.industry}</span>
+                      </div>
+                    )}
+                    {(job.employer?.companyProfile?.companySize || job.company?.companyProfile?.companySize) && (
+                      <div className="flex items-center">
+                        <Users className="h-5 w-5 text-gray-400 mr-3" />
+                        <span>{job.employer?.companyProfile?.companySize || job.company?.companyProfile?.companySize}</span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Job Description */}
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Job Description</h3>
+                <div className="prose max-w-none">
+                  <div dangerouslySetInnerHTML={{ __html: job.description }} />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Requirements */}
+            {job.requirements && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Requirements</h3>
+                  <div className="prose max-w-none">
+                    <div dangerouslySetInnerHTML={{ __html: job.requirements }} />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Skills */}
+            {job.skills && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Required Skills</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {parseJsonArray(job.skills).map((skill: string, index: number) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Benefits */}
+            {job.benefits && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Benefits</h3>
+                  <div className="prose max-w-none">
+                    <div dangerouslySetInnerHTML={{ __html: job.benefits }} />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+
+        {/* Action Footer */}
+        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 rounded-b-lg">
+          <div className="flex justify-between items-center">
+            <Button variant="outline" onClick={onClose}>
+              Close
+            </Button>
+            {hasApplied ? (
+              <Button disabled className="bg-green-600 text-white">
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Applied
+              </Button>
+            ) : (
+              <Button onClick={onApply} className="bg-blue-600 hover:bg-blue-700">
+                Apply for this Job
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function UserDashboard() {
   const [user, setUser] = useState<any>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [search, setSearch] = useState('');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [showJobModal, setShowJobModal] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [coverLetter, setCoverLetter] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -138,11 +371,14 @@ export default function UserDashboard() {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ coverLetter }),
-      });      if (response.ok) {
+      });
+
+      if (response.ok) {
         toast.success('Application submitted successfully!', {
           icon: '🎉',
         });
         setShowApplyModal(false);
+        setShowJobModal(false);
         setCoverLetter('');
         setSelectedJob(null);
         if (token) {
@@ -159,7 +395,7 @@ export default function UserDashboard() {
       toast.error('An error occurred while submitting your application', {
         icon: '❌',
       });
-    }finally {
+    } finally {
       setIsLoading(false);
     }
   };
@@ -192,6 +428,26 @@ export default function UserDashboard() {
         return <XCircle className="h-4 w-4" />;
       default:
         return <Clock4 className="h-4 w-4" />;
+    }
+  };
+
+  const hasAppliedToJob = (jobId: string) => {
+    return applications.some(app => app.job.id === jobId);
+  };
+
+  const getCompanyName = (job: Job) => {
+    return job.employer?.companyProfile?.companyName || 
+           job.company?.companyProfile?.companyName || 
+           job.employer?.name || 
+           'Company';
+  };
+
+  const parseSkills = (skillsJson?: string) => {
+    if (!skillsJson) return [];
+    try {
+      return JSON.parse(skillsJson);
+    } catch {
+      return [];
     }
   };
 
@@ -308,69 +564,145 @@ export default function UserDashboard() {
                   Search
                 </Button>
               </div>
-            </div>
-
-            {/* Jobs List */}
-            <div className="space-y-4">
+            </div>            {/* Jobs List */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {jobs.map((job) => (
-                <Card key={job.id} className="hover:shadow-lg transition-shadow">
+                <Card 
+                  key={job.id} 
+                  className="hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-blue-500 group"
+                  onClick={() => {
+                    setSelectedJob(job);
+                    setShowJobModal(true);
+                  }}
+                >
                   <CardContent className="p-6">
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-4 sm:space-y-0">
+                    {/* Header */}
+                    <div className="flex justify-between items-start mb-4">
                       <div className="flex-1">
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">{job.title}</h3>
-                        </div>
-                        
-                        <p className="text-blue-600 font-medium mb-2">
-                          {job.company?.companyProfile?.companyName || 'Company Name'}
-                        </p>
-                        
-                        <p className="text-gray-700 mb-3 line-clamp-2">{job.description}</p>
-                        
-                        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                          <span className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            {job.location}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {job.type?.replace('_', ' ') || 'Full Time'}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Building className="h-3 w-3" />
-                            {job.experienceLevel?.replace('_', ' ') || 'Entry Level'}
-                          </span>
-                        </div>
-                        
-                        {job.salaryMin && job.salaryMax && (
-                          <div className="mt-2">
-                            <span className="text-green-600 font-semibold">
-                              ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                            {job.title}
+                          </h3>
+                          {job.urgency === 'URGENT' && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 animate-pulse">
+                              <Zap className="h-3 w-3 mr-1" />
+                              Urgent
                             </span>
-                          </div>
-                        )}
-                      </div>                      
-                      <div className="sm:ml-6 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                        <Button
-                          variant="outline"
+                          )}
+                        </div>
+                        <div className="flex items-center text-gray-600 mb-2">
+                          <Building className="h-4 w-4 mr-2" />
+                          <span className="font-medium">{getCompanyName(job)}</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-gray-500">
+                          <Calendar className="h-3 w-3 inline mr-1" />
+                          {formatDate(job.createdAt)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Job Details */}
+                    <div className="space-y-3 mb-4">
+                      <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          {job.isRemote ? 'Remote' : job.location || 'Location not specified'}
+                        </div>
+                        <div className="flex items-center">
+                          <Briefcase className="h-4 w-4 mr-1" />
+                          {formatEmploymentType(job.employmentType)}
+                        </div>
+                        <div className="flex items-center">
+                          <Star className="h-4 w-4 mr-1" />
+                          {formatExperienceLevel(job.experienceLevel)}
+                        </div>
+                        <div className="flex items-center">
+                          <Users className="h-4 w-4 mr-1" />
+                          {job._count?.applications || 0} applicants
+                        </div>
+                      </div>
+
+                      {/* Salary */}
+                      {(job.salaryMin || job.salaryMax) && (
+                        <div className="flex items-center text-green-600 font-semibold">
+                          <DollarSign className="h-4 w-4 mr-1" />
+                          {job.salaryMin && job.salaryMax 
+                            ? `${job.currency || '$'} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`
+                            : job.salaryMin 
+                              ? `${job.currency || '$'} ${job.salaryMin.toLocaleString()}+`
+                              : `Up to ${job.currency || '$'} ${job.salaryMax?.toLocaleString()}`
+                          }
+                          <span className="text-xs text-gray-500 ml-1">per year</span>
+                        </div>
+                      )}
+
+                      {/* Description */}
+                      <div className="text-gray-700 text-sm line-clamp-2">
+                        {stripHtmlTags(job.description)}
+                      </div>
+
+                      {/* Skills */}
+                      {job.skills && parseSkills(job.skills).length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {parseSkills(job.skills).slice(0, 4).map((skill: string, index: number) => (
+                            <span
+                              key={index}
+                              className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                          {parseSkills(job.skills).length > 4 && (
+                            <span className="px-2 py-1 bg-gray-50 text-gray-600 rounded-full text-xs">
+                              +{parseSkills(job.skills).length - 4} more
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex justify-between items-center pt-4 border-t">
+                      <div className="text-xs text-gray-500 flex items-center">
+                        <Clock className="h-3 w-3 mr-1" />
+                        Posted {formatDate(job.createdAt)}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
                           size="sm"
-                          onClick={() => router.push(`/jobs/${job.id}`)}
-                          className="w-full sm:w-auto"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedJob(job);
+                            setShowJobModal(true);
+                          }}
                         >
-                          <Eye className="h-4 w-4 mr-1" />
                           View Details
                         </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            setSelectedJob(job);
-                            setShowApplyModal(true);
-                          }}
-                          disabled={applications.some(app => app.job.id === job.id)}
-                          className="w-full sm:w-auto"
-                        >
-                          {applications.some(app => app.job.id === job.id) ? 'Applied' : 'Apply Now'}
-                        </Button>
+                        {hasAppliedToJob(job.id) ? (
+                          <Button 
+                            size="sm"
+                            disabled
+                            className="bg-green-600 text-white"
+                          >
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Applied
+                          </Button>
+                        ) : (
+                          <Button 
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedJob(job);
+                              setShowApplyModal(true);
+                            }}
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            Apply Now
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -378,7 +710,7 @@ export default function UserDashboard() {
               ))}
               
               {jobs.length === 0 && (
-                <Card>
+                <Card className="lg:col-span-2">
                   <CardContent className="p-8 text-center">
                     <Briefcase className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No jobs found</h3>
@@ -388,9 +720,7 @@ export default function UserDashboard() {
               )}
             </div>
           </div>
-        )}
-
-        {activeTab === 'applications' && (
+        )}        {activeTab === 'applications' && (
           <div className="space-y-4">
             {applications.map((application) => (
               <Card key={application.id} className="hover:shadow-lg transition-shadow">
@@ -424,7 +754,17 @@ export default function UserDashboard() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => router.push(`/jobs/${application.job.id}`)}
+                        onClick={() => {
+                          // Find the full job details from the jobs array or fetch it
+                          const fullJob = jobs.find(j => j.id === application.job.id);
+                          if (fullJob) {
+                            setSelectedJob(fullJob);
+                            setShowJobModal(true);
+                          } else {
+                            // Fallback: navigate to job details page if job not found in current list
+                            router.push(`/jobs/${application.job.id}`);
+                          }
+                        }}
                       >
                         <Eye className="h-4 w-4 mr-1" />
                         View Job
@@ -448,11 +788,27 @@ export default function UserDashboard() {
               </Card>
             )}
           </div>
-        )}
-      </div>
+        )}      </div>
+
+      {/* Job Detail Modal */}
+      {selectedJob && (
+        <JobDetailModal
+          job={selectedJob}
+          isOpen={showJobModal}
+          onClose={() => {
+            setShowJobModal(false);
+            setSelectedJob(null);
+          }}
+          onApply={() => {
+            setShowJobModal(false);
+            setShowApplyModal(true);
+          }}
+          hasApplied={hasAppliedToJob(selectedJob.id)}
+        />
+      )}
 
       {/* Apply Modal */}
-      {showApplyModal && (
+      {showApplyModal && selectedJob && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-semibold mb-4">Apply for {selectedJob?.title}</h2>
@@ -485,7 +841,8 @@ export default function UserDashboard() {
               >
                 {isLoading ? 'Submitting...' : 'Submit Application'}
               </Button>
-            </div>          </div>
+            </div>
+          </div>
         </div>
       )}
       
