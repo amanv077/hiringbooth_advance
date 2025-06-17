@@ -98,21 +98,21 @@ export function Navbar() {
                 HiringBooth
               </span>
             </Link>
-          </div>
-
-          {/* Desktop Navigation */}
+          </div>          {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
-              <Link
-                href="/"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive("/")
-                    ? "text-blue-600 bg-blue-50"
-                    : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
-                }`}
-              >
-                Home
-              </Link>
+              {!user && (
+                <Link
+                  href="/"
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive("/")
+                      ? "text-blue-600 bg-blue-50"
+                      : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                  }`}
+                >
+                  Home
+                </Link>
+              )}
               <Link
                 href="/jobs"
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -202,21 +202,22 @@ export function Navbar() {
       </div>
 
       {/* Mobile menu */}
-      {isMenuOpen && (
-        <div className="md:hidden">
+      {isMenuOpen && (        <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
-            <Link
-              href="/"
-              onClick={closeMenu}
-              className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                isActive("/")
-                  ? "text-blue-600 bg-blue-50"
-                  : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
-              }`}
-            >
-              <Home className="h-4 w-4 mr-2" />
-              Home
-            </Link>
+            {!user && (
+              <Link
+                href="/"
+                onClick={closeMenu}
+                className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                  isActive("/")
+                    ? "text-blue-600 bg-blue-50"
+                    : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                }`}
+              >
+                <Home className="h-4 w-4 mr-2" />
+                Home
+              </Link>
+            )}
             <Link
               href="/jobs"
               onClick={closeMenu}
