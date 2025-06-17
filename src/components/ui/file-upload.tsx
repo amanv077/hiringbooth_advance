@@ -54,33 +54,53 @@ export default function FileUpload({
 
     const file = acceptedFiles[0];
     setUploading(true);
-    setUploadProgress(0);
+    setUploadProgress(0);    try {
+      console.log('Starting file upload:', {
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type
+      });
 
-    try {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', accept === 'image' ? 'logos' : 'documents');
 
       const token = localStorage.getItem('authToken');
       
+      if (!token) {
+        throw new Error('No authentication token found. Please log in again.');
+      }
+      
+      console.log('Making upload request...');
       const response = await fetch('/api/upload', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
         },
         body: formData,
-      });      if (response.ok) {
+      });
+
+      console.log('Upload response status:', response.status);
+
+      if (response.ok) {
         const result = await response.json();
+        console.log('Upload successful:', result);
         onUpload(result.url, result.fileName);
+        toast.success('File uploaded successfully!', {
+          icon: '✅',
+        });
       } else {
         const error = await response.json();
-        toast.error(error.error || 'Upload failed', {
+        console.error('Upload failed:', error);
+        const errorMessage = error.error || error.details || 'Upload failed';
+        toast.error(errorMessage, {
           icon: '❌',
         });
       }
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error('Upload failed', {
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+      toast.error(errorMessage, {
         icon: '❌',
       });
     }finally {
