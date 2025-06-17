@@ -289,7 +289,7 @@ export default function UserDashboard() {
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [coverLetter, setCoverLetter] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('jobs');
   const [applicationFilter, setApplicationFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
   const router = useRouter();
@@ -465,14 +465,15 @@ export default function UserDashboard() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Job Seeker Dashboard</h1>
-          <p className="mt-2 text-gray-600">
-            Find your next opportunity and track your applications
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">        {/* Page Header */}
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Discover Your Dream Job
+          </h1>
+          <p className="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">
+            🚀 Find opportunities that match your skills and aspirations. Your next career move starts here!
           </p>
-        </div>        {/* Quick Stats */}
+        </div>{/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
@@ -531,34 +532,34 @@ export default function UserDashboard() {
         <div className="mb-6">
           <nav className="flex space-x-8">
             <button
-              onClick={() => setActiveTab('overview')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'overview'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Overview
-            </button>
-            <button
               onClick={() => setActiveTab('jobs')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`py-3 px-1 border-b-2 font-semibold text-base ${
                 activeTab === 'jobs'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
-              Browse Jobs
+              🔍 Discover Jobs
             </button>
             <button
               onClick={() => setActiveTab('applications')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`py-3 px-1 border-b-2 font-semibold text-base ${
                 activeTab === 'applications'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
-              My Applications ({applications.length})
+              📋 My Applications ({applications.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`py-3 px-1 border-b-2 font-semibold text-base ${
+                activeTab === 'overview'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              📊 Analytics
             </button>
           </nav>
         </div>
@@ -712,33 +713,58 @@ export default function UserDashboard() {
             )}
           </div>
         )}        {activeTab === 'jobs' && (
-          <div>
-            {/* Job Search */}
-            <div className="mb-6">
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                    <Input
-                      type="text"
-                      placeholder="Search for jobs..."
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      className="pl-10"
-                      onKeyPress={(e) => e.key === 'Enter' && handleJobSearch()}
-                    />
+          <div>            {/* Enhanced Job Search */}
+            <div className="mb-8">
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <Search className="h-5 w-5 mr-2 text-blue-600" />
+                  Find Your Perfect Match
+                </h3>
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                      <Input
+                        type="text"
+                        placeholder="Job title, skills, or company..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="pl-12 h-12 text-lg rounded-xl border-2 border-gray-200 focus:border-blue-500"
+                        onKeyPress={(e) => e.key === 'Enter' && handleJobSearch()}
+                      />
+                    </div>
                   </div>
+                  <Button 
+                    onClick={handleJobSearch}
+                    className="h-12 px-8 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg"
+                  >
+                    🔍 Search Jobs
+                  </Button>
                 </div>
-                <Button onClick={handleJobSearch}>
-                  Search
-                </Button>
+                
+                {/* Quick Filters */}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="text-sm text-gray-600 mr-2">Quick filters:</span>
+                  {['Remote', 'Full-time', 'Part-time', 'Senior', 'Junior'].map((filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => {
+                        setSearch(filter);
+                        handleJobSearch();
+                      }}
+                      className="px-3 py-1 bg-gray-100 hover:bg-blue-100 hover:text-blue-700 text-gray-700 rounded-lg text-sm transition-all duration-200"
+                    >
+                      {filter}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>            {/* Jobs List */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            </div>{/* Jobs List */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {jobs.map((job) => (
                 <Card 
                   key={job.id} 
-                  className="hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-blue-500 group"
+                  className="hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-white to-blue-50/30 group hover:scale-105"
                   onClick={() => {
                     setSelectedJob(job);
                     setShowJobModal(true);
@@ -888,8 +914,207 @@ export default function UserDashboard() {
                 </Card>
               )}
             </div>
+
+            {/* Job Discovery Banner */}
+            {jobs.length === 0 && (
+              <div className="text-center py-12 mb-8">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
+                  <h2 className="text-2xl font-bold mb-4">🎯 Ready to Find Your Perfect Job?</h2>
+                  <p className="text-blue-100 mb-6 max-w-md mx-auto">
+                    Thousands of opportunities are waiting for you. Start your search now and take the next step in your career!
+                  </p>
+                  <Button 
+                    onClick={handleJobSearch}
+                    className="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-8 py-3"
+                  >
+                    Explore All Jobs
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {jobs.length > 0 && (
+              <div className="bg-blue-50 rounded-xl p-4 mb-6 flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="bg-blue-600 rounded-full p-2 mr-3">
+                    <Briefcase className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-blue-900">
+                      {jobs.length} opportunities found
+                    </p>
+                    <p className="text-blue-700 text-sm">
+                      Click on any job card to view details and apply
+                    </p>
+                  </div>
+                </div>
+                <Button 
+                  variant="outline"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
+                >
+                  Back to Top
+                </Button>
+              </div>            )}
+
+            {/* Jobs List */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {jobs.map((job) => (
+                <Card 
+                  key={job.id} 
+                  className="hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-white to-blue-50/30 group hover:scale-105"
+                  onClick={() => {
+                    setSelectedJob(job);
+                    setShowJobModal(true);
+                  }}
+                >
+                  <CardContent className="p-6">
+                    {/* Header */}
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                            {job.title}
+                          </h3>
+                          {job.urgency === 'URGENT' && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 animate-pulse">
+                              <Zap className="h-3 w-3 mr-1" />
+                              Urgent
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center text-gray-600 mb-2">
+                          <Building className="h-4 w-4 mr-2" />
+                          <span className="font-medium">{getCompanyName(job)}</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-gray-500">
+                          <Calendar className="h-3 w-3 inline mr-1" />
+                          {formatDate(job.createdAt)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Job Details */}
+                    <div className="space-y-3 mb-4">
+                      <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          {job.isRemote ? 'Remote' : job.location || 'Location not specified'}
+                        </div>
+                        <div className="flex items-center">
+                          <Briefcase className="h-4 w-4 mr-1" />
+                          {formatEmploymentType(job.employmentType)}
+                        </div>
+                        <div className="flex items-center">
+                          <Star className="h-4 w-4 mr-1" />
+                          {formatExperienceLevel(job.experienceLevel)}
+                        </div>
+                        <div className="flex items-center">
+                          <Users className="h-4 w-4 mr-1" />
+                          {job._count?.applications || 0} applicants
+                        </div>
+                      </div>
+
+                      {/* Salary */}
+                      {(job.salaryMin || job.salaryMax) && (
+                        <div className="flex items-center text-green-600 font-semibold">
+                          <DollarSign className="h-4 w-4 mr-1" />
+                          {job.salaryMin && job.salaryMax 
+                            ? `${job.currency || '$'} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`
+                            : job.salaryMin 
+                              ? `${job.currency || '$'} ${job.salaryMin.toLocaleString()}+`
+                              : `Up to ${job.currency || '$'} ${job.salaryMax?.toLocaleString()}`
+                          }
+                          <span className="text-xs text-gray-500 ml-1">per year</span>
+                        </div>
+                      )}
+
+                      {/* Description */}
+                      <div className="text-gray-700 text-sm line-clamp-2">
+                        {stripHtmlTags(job.description)}
+                      </div>
+
+                      {/* Skills */}
+                      {job.skills && parseSkills(job.skills).length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {parseSkills(job.skills).slice(0, 4).map((skill: string, index: number) => (
+                            <span
+                              key={index}
+                              className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                          {parseSkills(job.skills).length > 4 && (
+                            <span className="px-2 py-1 bg-gray-50 text-gray-600 rounded-full text-xs">
+                              +{parseSkills(job.skills).length - 4} more
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex justify-between items-center pt-4 border-t">
+                      <div className="text-xs text-gray-500 flex items-center">
+                        <Clock className="h-3 w-3 mr-1" />
+                        Posted {formatDate(job.createdAt)}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedJob(job);
+                            setShowJobModal(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                        {!hasAppliedToJob(job.id) && (
+                          <Button 
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedJob(job);
+                              setShowApplyModal(true);
+                            }}
+                          >
+                            Apply
+                          </Button>
+                        )}
+                        {hasAppliedToJob(job.id) && (
+                          <span className="text-sm text-green-600 font-medium">
+                            Applied ✓
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {jobs.length === 0 && (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Briefcase className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No jobs found</h3>
+                  <p className="text-gray-600 mb-4">Try adjusting your search terms or browse all available positions</p>
+                  <Button onClick={() => setSearch('')}>
+                    Show All Jobs
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </div>
-        )}        {activeTab === 'applications' && (
+        )}
+
+        {activeTab === 'applications' && (
           <div className="space-y-6">
             {/* Application Filters */}
             <div className="flex flex-col sm:flex-row gap-4 bg-gray-50 p-4 rounded-lg">
@@ -1041,8 +1266,7 @@ export default function UserDashboard() {
             setShowJobModal(false);
             setShowApplyModal(true);
           }}
-          hasApplied={hasAppliedToJob(selectedJob.id)}
-        />
+          hasApplied={hasAppliedToJob(selectedJob.id)}        />
       )}
 
       {/* Apply Modal */}
