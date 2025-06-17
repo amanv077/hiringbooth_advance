@@ -52,7 +52,6 @@ export default function JobApplyPage({ params }: JobApplyPageProps) {
   const [coverLetter, setCoverLetter] = useState('');
   const [resume, setResume] = useState<File | null>(null);
   const router = useRouter();
-
   useEffect(() => {
     const fetchJobAndCheckAuth = async () => {
       const { id } = await params;
@@ -65,6 +64,23 @@ export default function JobApplyPage({ params }: JobApplyPageProps) {
         });
         router.push(`/auth/login?redirect=/jobs/${id}/apply`);
         return;
+      }
+
+      // Check if user is an employer (employers cannot apply for jobs)
+      try {
+        const employerResponse = await fetch('/api/employer/profile', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (employerResponse.ok) {
+          toast.error('Employers cannot apply for jobs. You can only post and manage jobs.', {
+            icon: '⚠️',
+          });
+          router.push('/employer/dashboard');
+          return;
+        }
+      } catch (error) {
+        // If employer check fails, continue (user might be a regular user)
       }
 
       fetchJob(id);

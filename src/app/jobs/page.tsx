@@ -65,15 +65,45 @@ export default function JobsPage() {
   const [typeFilter, setTypeFilter] = useState('');
   const [experienceFilter, setExperienceFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     fetchJobs();
+    checkUserRole();
   }, []);
 
   useEffect(() => {
     filterJobs();
   }, [jobs, searchTerm, locationFilter, typeFilter, experienceFilter]);
+
+  const checkUserRole = async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    try {
+      // Try employer profile first
+      const employerResponse = await fetch('/api/employer/profile', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      
+      if (employerResponse.ok) {
+        setUserRole('EMPLOYER');
+        return;
+      }
+
+      // Try user profile if employer fails
+      const userResponse = await fetch('/api/user/profile', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      
+      if (userResponse.ok) {
+        setUserRole('USER');
+      }
+    } catch (error) {
+      console.error('Error checking user role:', error);
+    }
+  };
 
   const fetchJobs = async () => {
     try {
@@ -137,7 +167,6 @@ export default function JobsPage() {
   const formatExperienceLevel = (level: string) => {
     return level.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
   };
-
   const handleApplyClick = (jobId: string) => {
     const token = localStorage.getItem('authToken');
     if (!token) {
@@ -147,6 +176,14 @@ export default function JobsPage() {
       router.push(`/auth/login?redirect=/jobs/${jobId}`);
       return;
     }
+
+    if (userRole === 'EMPLOYER') {
+      toast.error('Employers cannot apply for jobs. You can only post and manage jobs.', {
+        icon: '⚠️',
+      });
+      return;
+    }
+
     router.push(`/jobs/${jobId}/apply`);
   };
 
@@ -367,18 +404,32 @@ export default function JobsPage() {
                         router.push(`/jobs/${job.id}`);
                       }}
                     >
-                      View Details
-                    </Button>
-                    <Button 
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleApplyClick(job.id);
-                      }}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      Apply Now
-                    </Button>
+                      View Details                    </Button>
+                    {userRole !== 'EMPLOYER' && (
+                      <Button 
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleApplyClick(job.id);
+                        }}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        Apply Now
+                      </Button>
+                    )}
+                    {userRole === 'EMPLOYER' && (
+                      <Button 
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push('/employer/dashboard');
+                        }}
+                        className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                      >
+                        View Dashboard
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardContent>
