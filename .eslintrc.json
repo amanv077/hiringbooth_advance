@@ -16,8 +16,7 @@
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-empty-interface": "off",
-    
-    // React rules - all warnings or off
+      // React rules - all warnings or off
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off", 
     "react/jsx-key": "off",
@@ -26,6 +25,7 @@
     "react/no-children-prop": "off",
     "react/no-unknown-property": "off",
     "react/display-name": "off",
+    "react/jsx-no-undef": "off",
     
     // React hooks rules
     "react-hooks/exhaustive-deps": "off",

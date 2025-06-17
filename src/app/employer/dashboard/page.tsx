@@ -1,18 +1,16 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { EmployerHeader } from '@/components/employer/EmployerHeader';
+import { JobApplicationsView } from '@/components/employer/JobApplicationsView';
+import { JobCard } from '@/components/employer/JobCardNew';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { HiringLoader } from '@/components/ui/loader';
-import { Plus, Briefcase, Users, Eye, TrendingUp, Clock } from 'lucide-react';
-import Link from 'next/link';
-import toast from 'react-hot-toast';
-import { stripHtmlTags } from '@/lib/htmlUtils';
-import { EmployerHeader } from '@/components/employer/EmployerHeader';
-import { JobCard } from '@/components/employer/JobCardNew';
-import { JobApplicationsView } from '@/components/employer/JobApplicationsView';
 import { getApplicationStats } from '@/lib/employerUtils';
+import { Briefcase, Clock, Eye, Plus, TrendingUp, Users } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface Job {
   id: string;
