@@ -40,10 +40,9 @@ export const formatDate = (dateString: string): string => {
   });
 };
 
-export const formatSalary = (min?: number, max?: number, currency = 'USD'): string => {
+export const formatSalary = (min?: number, max?: number, currency = 'INR'): string => {
   if (!min || !max) return 'Salary not specified';
-  const symbol = currency === 'USD' ? '$' : '₹';
-  return `${symbol}${min.toLocaleString()} - ${symbol}${max.toLocaleString()}`;
+  return `₹${min.toLocaleString()} - ₹${max.toLocaleString()}`;
 };
 
 export const formatJobType = (type: string): string => {

@@ -10,7 +10,7 @@ import {
   MapPin, 
   Clock, 
   Briefcase, 
-  DollarSign, 
+  IndianRupee, 
   Building, 
   Calendar,
   Users,
@@ -145,20 +145,59 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
       return [];
     }
   };
-
   const shareJob = () => {
+    const jobUrl = window.location.href;
+    const jobTitle = job?.title || 'Job Opportunity';
+    const companyName = getCompanyName(job!);
+    const shareText = `Check out this job opportunity: ${jobTitle} at ${companyName}`;
+
     if (navigator.share) {
       navigator.share({
-        title: job?.title,
-        text: `Check out this job opportunity: ${job?.title} at ${getCompanyName(job!)}`,
-        url: window.location.href,
+        title: jobTitle,
+        text: shareText,
+        url: jobUrl,
+      }).catch((error) => {
+        console.log('Error sharing:', error);
+        // Fallback to clipboard
+        navigator.clipboard.writeText(jobUrl);
+        toast.success('Job link copied to clipboard!', {
+          icon: '📋',
+        });
       });
     } else {
-      navigator.clipboard.writeText(window.location.href);
+      navigator.clipboard.writeText(jobUrl);
       toast.success('Job link copied to clipboard!', {
         icon: '📋',
       });
     }
+  };
+
+  const shareToSocialMedia = (platform: string) => {
+    const jobUrl = encodeURIComponent(window.location.href);
+    const jobTitle = encodeURIComponent(job?.title || 'Job Opportunity');
+    const companyName = encodeURIComponent(getCompanyName(job!));
+    const shareText = encodeURIComponent(`Check out this job opportunity: ${job?.title} at ${getCompanyName(job!)}`);
+    
+    let shareUrl = '';
+    
+    switch (platform) {
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?text=${shareText}&url=${jobUrl}`;
+        break;
+      case 'linkedin':
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${jobUrl}`;
+        break;
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${jobUrl}`;
+        break;
+      case 'whatsapp':
+        shareUrl = `https://wa.me/?text=${shareText}%20${jobUrl}`;
+        break;
+      default:
+        return;
+    }
+    
+    window.open(shareUrl, '_blank', 'width=600,height=400');
   };
 
   if (isLoading) {
@@ -206,8 +245,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Job Header */}
+          <div className="lg:col-span-2 space-y-6">            {/* Job Header */}
             <Card>
               <CardContent className="p-8">
                 <div className="flex justify-between items-start mb-6">
@@ -255,9 +293,9 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                 {job.salaryMin && job.salaryMax && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
                     <div className="flex items-center text-green-700">
-                      <DollarSign className="h-5 w-5 mr-2" />
+                      <IndianRupee className="h-5 w-5 mr-2" />
                       <span className="text-xl font-semibold">
-                        {job.currency === 'USD' ? '$' : '₹'}{job.salaryMin.toLocaleString()} - {job.currency === 'USD' ? '$' : '₹'}{job.salaryMax.toLocaleString()}
+                        ₹{job.salaryMin.toLocaleString()} - ₹{job.salaryMax.toLocaleString()}
                       </span>
                       <span className="text-sm ml-2">per year</span>
                     </div>
@@ -414,9 +452,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                   )}
                 </div>
               </CardContent>
-            </Card>
-
-            {/* Job Stats */}
+            </Card>            {/* Job Stats */}
             <Card>
               <CardHeader>
                 <CardTitle>Job Statistics</CardTitle>
@@ -441,7 +477,82 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                   </div>
                 </div>
               </CardContent>
-            </Card>          </div>
+            </Card>
+
+            {/* Share Job */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Share2 className="h-5 w-5" />
+                  Share this Job
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600">Help others discover this opportunity</p>
+                  
+                  {/* Quick Actions */}
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={shareJob}
+                      className="flex-1"
+                    >
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => {
+                        const jobUrl = window.location.href;
+                        navigator.clipboard.writeText(jobUrl);
+                        toast.success('Job link copied to clipboard!', {
+                          icon: '📋',
+                        });
+                      }}
+                      className="flex-1"
+                    >
+                      📋 Copy
+                    </Button>
+                  </div>
+                  
+                  {/* Social Media Share Buttons */}
+                  <div className="space-y-2">
+                    <p className="text-xs text-gray-500">Share on social media:</p>
+                    <div className="flex flex-col gap-2">
+                      <button
+                        onClick={() => shareToSocialMedia('linkedin')}
+                        className="flex items-center gap-2 w-full px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                      >
+                        💼 Share on LinkedIn
+                      </button>
+                      <button
+                        onClick={() => shareToSocialMedia('twitter')}
+                        className="flex items-center gap-2 w-full px-3 py-2 text-sm bg-sky-500 text-white rounded hover:bg-sky-600 transition-colors"
+                      >
+                        🐦 Share on Twitter
+                      </button>
+                      <button
+                        onClick={() => shareToSocialMedia('whatsapp')}
+                        className="flex items-center gap-2 w-full px-3 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                      >
+                        💬 Share on WhatsApp
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Job URL */}
+                  <div className="bg-gray-50 p-3 rounded border">
+                    <p className="text-xs text-gray-500 mb-1">Job URL:</p>
+                    <p className="text-xs text-gray-700 font-mono break-all">
+                      {typeof window !== 'undefined' ? window.location.href : `/jobs/${job.id}`}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card></div>
         </div>
       </div>
       

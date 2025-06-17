@@ -12,7 +12,7 @@ import {
   Building,
   MapPin,
   Briefcase,
-  DollarSign,
+  IndianRupee,
   Upload,
   FileText,
   CheckCircle
@@ -247,7 +247,7 @@ export default function JobApplyPage({ params }: JobApplyPageProps) {
 
                     {job.salaryMin && job.salaryMax && (
                       <div className="flex items-center text-green-600">
-                        <DollarSign className="h-4 w-4 mr-2 flex-shrink-0" />
+                        <IndianRupee className="h-4 w-4 mr-2 flex-shrink-0" />
                         <span className="font-medium">
                           {job.currency === 'USD' ? '$' : '₹'}{job.salaryMin.toLocaleString()} - {job.currency === 'USD' ? '$' : '₹'}{job.salaryMax.toLocaleString()}
                         </span>

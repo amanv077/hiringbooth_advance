@@ -11,7 +11,7 @@ import {
   MapPin, 
   Clock, 
   Briefcase, 
-  DollarSign, 
+  IndianRupee, 
   Building, 
   Search,
   Filter,
@@ -21,7 +21,8 @@ import {
   Zap,
   Eye,
   X,
-  CheckCircle
+  CheckCircle,
+  Share2
 } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -151,7 +152,7 @@ function JobDetailModal({ job, isOpen, onClose, userRole, onApply, hasApplied }:
                     </div>
                     {(job.salaryMin || job.salaryMax) && (
                       <div className="flex items-center">
-                        <DollarSign className="h-5 w-5 text-gray-400 mr-3" />
+                        <IndianRupee className="h-5 w-5 text-gray-400 mr-3" />
                         <span>
                           {job.salaryMin && job.salaryMax 
                             ? `${job.currency} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`
@@ -628,8 +629,8 @@ export default function JobsPage() {
                   {/* Salary */}
                   {job.salaryMin && job.salaryMax && (
                     <div className="flex items-center text-green-600 font-semibold">
-                      <DollarSign className="h-4 w-4 mr-1" />
-                      {job.currency === 'USD' ? '$' : '₹'}{job.salaryMin.toLocaleString()} - {job.currency === 'USD' ? '$' : '₹'}{job.salaryMax.toLocaleString()}
+                      <IndianRupee className="h-4 w-4 mr-1" />
+                      ₹{job.salaryMin.toLocaleString()} - ₹{job.salaryMax.toLocaleString()}
                       <span className="text-xs text-gray-500 ml-1">per year</span>
                     </div>
                   )}                  {/* Description */}
@@ -662,8 +663,21 @@ export default function JobsPage() {
                   <div className="text-xs text-gray-500 flex items-center">
                     <Clock className="h-3 w-3 mr-1" />
                     Posted {formatDate(job.createdAt)}
-                  </div>
-                  <div className="flex gap-2">                    <Button 
+                  </div>                  <div className="flex gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const jobUrl = `${window.location.origin}/jobs/${job.id}`;
+                        navigator.clipboard.writeText(jobUrl);
+                        toast.success('Job link copied!', { icon: '📋' });
+                      }}
+                      className="text-gray-500 hover:text-blue-600"
+                    >
+                      <Share2 className="h-4 w-4" />
+                    </Button>
+                    <Button 
                       variant="outline" 
                       size="sm"
                       onClick={(e) => {
@@ -673,7 +687,7 @@ export default function JobsPage() {
                       }}
                     >
                       View Details
-                    </Button>                    {userRole !== 'EMPLOYER' && (
+                    </Button>{userRole !== 'EMPLOYER' && (
                       <>
                         {hasAppliedToJob(job.id) ? (
                           <Button 

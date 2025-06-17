@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Search, Briefcase, MapPin, Clock, Building, Eye, CheckCircle, XCircle, Clock4, User, LogOut, Calendar, Users, Star, Zap, DollarSign, X } from 'lucide-react';
+import { Search, Briefcase, MapPin, Clock, Building, Eye, CheckCircle, XCircle, Clock4, User, LogOut, Calendar, Users, Star, Zap, IndianRupee, X } from 'lucide-react';
 import Link from 'next/link';
 import { Navbar, Footer } from '@/components/shared';
 import toast from 'react-hot-toast';
@@ -161,13 +161,13 @@ function JobDetailModal({ job, isOpen, onClose, onApply, hasApplied }: JobDetail
                     </div>
                     {(job.salaryMin || job.salaryMax) && (
                       <div className="flex items-center">
-                        <DollarSign className="h-5 w-5 text-gray-400 mr-3" />
+                        <IndianRupee className="h-5 w-5 text-gray-400 mr-3" />
                         <span>
                           {job.salaryMin && job.salaryMax 
-                            ? `${job.currency || '$'} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`
+                            ? `₹ ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`
                             : job.salaryMin 
-                              ? `${job.currency || '$'} ${job.salaryMin.toLocaleString()}+`
-                              : `Up to ${job.currency || '$'} ${job.salaryMax?.toLocaleString()}`
+                              ? `₹ ${job.salaryMin.toLocaleString()}+`
+                              : `Up to ₹ ${job.salaryMax?.toLocaleString()}`
                           }
                         </span>
                       </div>
@@ -822,12 +822,12 @@ export default function UserDashboard() {
                       {/* Salary */}
                       {(job.salaryMin || job.salaryMax) && (
                         <div className="flex items-center text-green-600 font-semibold">
-                          <DollarSign className="h-4 w-4 mr-1" />
+                          <IndianRupee className="h-4 w-4 mr-1" />
                           {job.salaryMin && job.salaryMax 
-                            ? `${job.currency || '$'} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`
+                            ? `₹ ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`
                             : job.salaryMin 
-                              ? `${job.currency || '$'} ${job.salaryMin.toLocaleString()}+`
-                              : `Up to ${job.currency || '$'} ${job.salaryMax?.toLocaleString()}`
+                              ? `₹ ${job.salaryMin.toLocaleString()}+`
+                              : `Up to ₹ ${job.salaryMax?.toLocaleString()}`
                           }
                           <span className="text-xs text-gray-500 ml-1">per year</span>
                         </div>
@@ -1020,12 +1020,12 @@ export default function UserDashboard() {
                       {/* Salary */}
                       {(job.salaryMin || job.salaryMax) && (
                         <div className="flex items-center text-green-600 font-semibold">
-                          <DollarSign className="h-4 w-4 mr-1" />
+                          <IndianRupee className="h-4 w-4 mr-1" />
                           {job.salaryMin && job.salaryMax 
-                            ? `${job.currency || '$'} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`
+                            ? `₹ ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`
                             : job.salaryMin 
-                              ? `${job.currency || '$'} ${job.salaryMin.toLocaleString()}+`
-                              : `Up to ${job.currency || '$'} ${job.salaryMax?.toLocaleString()}`
+                              ? `₹ ${job.salaryMin.toLocaleString()}+`
+                              : `Up to ₹ ${job.salaryMax?.toLocaleString()}`
                           }
                           <span className="text-xs text-gray-500 ml-1">per year</span>
                         </div>

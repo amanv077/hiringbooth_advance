@@ -9,7 +9,7 @@ import {
   Users, 
   Eye, 
   Edit, 
-  DollarSign,
+  IndianRupee,
   Clock,
   Building
 } from 'lucide-react';
@@ -78,7 +78,7 @@ export function JobCard({
             {/* Salary */}
             {job.salaryMin && job.salaryMax && (
               <div className="flex items-center text-green-600 font-semibold mb-3">
-                <DollarSign className="h-4 w-4 mr-1" />
+                <IndianRupee className="h-4 w-4 mr-1" />
                 <span className="text-sm">
                   {formatSalary(job.salaryMin, job.salaryMax, job.currency)}
                 </span>

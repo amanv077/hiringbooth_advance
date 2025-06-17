@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Briefcase, Users, TrendingUp, Heart, MapPin, Clock, DollarSign } from 'lucide-react';
+import { Briefcase, Users, TrendingUp, Heart, MapPin, Clock, IndianRupee } from 'lucide-react';
 import { Navbar, Footer } from '@/components/shared';
 
 export default function CareersPage() {
@@ -11,7 +11,7 @@ export default function CareersPage() {
       department: "Engineering",
       location: "New York, NY / Remote",
       type: "Full-time",
-      salary: "$120k - $160k",
+      salary: "₹12,00,000 - ₹16,00,000",
       description: "Join our frontend team to build beautiful, responsive user interfaces using React and TypeScript."
     },
     {
@@ -20,7 +20,7 @@ export default function CareersPage() {
       department: "Product",
       location: "New York, NY",
       type: "Full-time",
-      salary: "$130k - $170k",
+      salary: "₹13,00,000 - ₹17,00,000",
       description: "Lead product strategy and roadmap for our core hiring platform features."
     },
     {
@@ -29,7 +29,7 @@ export default function CareersPage() {
       department: "Design",
       location: "New York, NY / Remote",
       type: "Full-time",
-      salary: "$100k - $140k",
+      salary: "₹10,00,000 - ₹14,00,000",
       description: "Design intuitive user experiences that make hiring effortless for both employers and candidates."
     },
     {
@@ -38,7 +38,7 @@ export default function CareersPage() {
       department: "Engineering",
       location: "Remote",
       type: "Full-time",
-      salary: "$110k - $150k",
+      salary: "₹11,00,000 - ₹15,00,000",
       description: "Build scalable APIs and microservices to power our hiring platform infrastructure."
     },
     {
@@ -47,7 +47,7 @@ export default function CareersPage() {
       department: "Data",
       location: "New York, NY",
       type: "Full-time",
-      salary: "$125k - $165k",
+      salary: "₹12,50,000 - ₹16,50,000",
       description: "Develop machine learning models to improve job matching and candidate recommendations."
     },
     {
@@ -56,7 +56,7 @@ export default function CareersPage() {
       department: "Marketing",
       location: "New York, NY / Hybrid",
       type: "Full-time",
-      salary: "$90k - $120k",
+      salary: "₹9,00,000 - ₹12,00,000",
       description: "Drive growth through strategic marketing campaigns and brand partnerships."
     }
   ];
@@ -78,7 +78,7 @@ export default function CareersPage() {
       description: "Flexible working hours and remote work options"
     },
     {
-      icon: <DollarSign className="h-6 w-6" />,
+      icon: <IndianRupee className="h-6 w-6" />,
       title: "Competitive Compensation",
       description: "Market-competitive salaries with equity participation"
     }
@@ -171,7 +171,7 @@ export default function CareersPage() {
                         <span>{position.location}</span>
                       </div>
                       <div className="flex items-center space-x-1">
-                        <DollarSign className="h-4 w-4" />
+                        <IndianRupee className="h-4 w-4" />
                         <span>{position.salary}</span>
                       </div>
                     </div>
