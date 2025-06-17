@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { Shield, AlertTriangle } from "lucide-react"
+import toast from 'react-hot-toast'
 
 export default function AdminRegisterPage() {
   const [formData, setFormData] = useState({
@@ -20,16 +21,19 @@ export default function AdminRegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!")
+      if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords don't match!", {
+        icon: '🔐',
+      })
       setIsLoading(false)
       return
     }
 
     // Simple admin code verification (in production, use environment variable)
     if (formData.adminCode !== "HIRINGBOOTH_ADMIN_2025") {
-      alert("Invalid admin code!")
+      toast.error("Invalid admin code!", {
+        icon: '🔑',
+      })
       setIsLoading(false)
       return
     }
@@ -42,20 +46,25 @@ export default function AdminRegisterPage() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          role: "admin"
-        })
+          role: "admin"        })
       })
 
       if (response.ok) {
-        alert("Admin registration successful! Please check your email for OTP verification.")
+        toast.success("Admin registration successful! Please check your email for OTP verification.", {
+          icon: '✅',
+        })
         // Redirect to OTP verification or login
         window.location.href = "/auth/login"
       } else {
         const error = await response.json()
-        alert(error.message || "Registration failed")
+        toast.error(error.message || "Registration failed", {
+          icon: '❌',
+        })
       }
     } catch (error) {
-      alert("Something went wrong. Please try again.")
+      toast.error("Something went wrong. Please try again.", {
+        icon: '⚠️',
+      })
     } finally {
       setIsLoading(false)
     }

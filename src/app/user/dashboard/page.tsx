@@ -315,7 +315,7 @@ export default function UserDashboard() {
               {jobs.map((job) => (
                 <Card key={job.id} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-6">
-                    <div className="flex justify-between items-start">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-4 sm:space-y-0">
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
                           <h3 className="text-lg font-semibold text-gray-900">{job.title}</h3>
@@ -349,13 +349,13 @@ export default function UserDashboard() {
                             </span>
                           </div>
                         )}
-                      </div>
-                      
-                      <div className="ml-6 flex space-x-2">
+                      </div>                      
+                      <div className="sm:ml-6 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => router.push(`/jobs/${job.id}`)}
+                          className="w-full sm:w-auto"
                         >
                           <Eye className="h-4 w-4 mr-1" />
                           View Details
@@ -367,6 +367,7 @@ export default function UserDashboard() {
                             setShowApplyModal(true);
                           }}
                           disabled={applications.some(app => app.job.id === job.id)}
+                          className="w-full sm:w-auto"
                         >
                           {applications.some(app => app.job.id === job.id) ? 'Applied' : 'Apply Now'}
                         </Button>

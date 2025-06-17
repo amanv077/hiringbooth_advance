@@ -257,12 +257,76 @@ html {
   outline: none;
 }
 
-/* Button Hover Effects */
-.hover-lift {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* Mobile responsive utilities */
+@layer utilities {
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
 }
 
-.hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+/* Ensure proper mobile viewport handling */
+@viewport {
+  width: device-width;
+  initial-scale: 1;
+  maximum-scale: 1;
+  user-scalable: no;
+}
+
+/* Mobile-first responsive design helpers */
+.mobile-container {
+  @apply px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto;
+}
+
+.mobile-section {
+  @apply py-8 sm:py-12 lg:py-16;
+}
+
+.mobile-text {
+  @apply text-sm sm:text-base;
+}
+
+.mobile-heading {
+  @apply text-xl sm:text-2xl lg:text-3xl;
+}
+
+/* Toast container responsive positioning */
+.toast-container {
+  @apply fixed top-4 right-4 left-4 sm:left-auto sm:right-4 z-50;
+}
+
+/* Card hover effects */
+.card-hover {
+  @apply transition-all duration-200 hover:shadow-lg hover:scale-[1.02];
+}
+
+/* Button responsive sizes */
+.btn-mobile {
+  @apply px-4 py-2 text-sm sm:px-6 sm:py-3 sm:text-base;
+}
+
+/* Smooth scrolling for mobile */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Better touch targets for mobile */
+button, a, input, select, textarea {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Prevent horizontal scroll on mobile */
+body {
+  overflow-x: hidden;
 }

@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Briefcase, Building, CheckCircle, XCircle, Clock4, User, LogOut, Eye, ChevronLeft, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { Loader } from '@/components/ui/loader';
+import toast from 'react-hot-toast';
+import { Button } from '@/components/ui/button';
 
 interface DashboardStats {
   totalUsers: number;
@@ -198,21 +199,25 @@ export default function AdminDashboard() {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ userId, action, reason }),
-      });
-
-      if (response.ok) {
-        alert(`Employer ${action}d successfully!`);
+      });      if (response.ok) {
+        toast.success(`Employer ${action}d successfully!`, {
+          icon: action === 'approve' ? '✅' : '❌',
+        });
         fetchPendingEmployers(token!);
         fetchDashboardStats(token!);
         setShowEmployerModal(false);
         setSelectedEmployer(null);
       } else {
         const error = await response.json();
-        alert(error.error || `Failed to ${action} employer`);
+        toast.error(error.error || `Failed to ${action} employer`, {
+          icon: '⚠️',
+        });
       }
     } catch (error) {
       console.error(`Error ${action}ing employer:`, error);
-      alert(`Failed to ${action} employer`);
+      toast.error(`Failed to ${action} employer`, {
+        icon: '⚠️',
+      });
     } finally {
       setIsProcessing(false);
     }

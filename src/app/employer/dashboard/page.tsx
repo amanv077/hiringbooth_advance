@@ -451,19 +451,19 @@ export default function EmployerDashboard() {
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex space-x-4">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
                   {user.isApproved ? (
-                    <Button onClick={() => router.push('/employer/jobs/create')}>
+                    <Button onClick={() => router.push('/employer/jobs/create')} className="w-full sm:w-auto">
                       <Plus className="h-4 w-4 mr-2" />
                       Post New Job
                     </Button>
                   ) : (
-                    <Button disabled>
+                    <Button disabled className="w-full sm:w-auto">
                       <Plus className="h-4 w-4 mr-2" />
                       Post New Job (Approval Required)
                     </Button>
                   )}
-                  <Button variant="outline" onClick={() => setActiveTab('applications')}>
+                  <Button variant="outline" onClick={() => setActiveTab('applications')} className="w-full sm:w-auto">
                     <Users className="h-4 w-4 mr-2" />
                     Review Applications
                   </Button>
@@ -478,7 +478,7 @@ export default function EmployerDashboard() {
               </CardHeader>
               <CardContent>
                 {applications.slice(0, 5).map((application) => (
-                  <div key={application.id} className="flex justify-between items-center py-3 border-b last:border-b-0">                    <div>
+                  <div key={application.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-3 border-b last:border-b-0 space-y-2 sm:space-y-0">                    <div>
                       <p className="font-medium text-gray-900">
                         {application.applicant.userProfile?.firstName} {application.applicant.userProfile?.lastName}
                       </p>

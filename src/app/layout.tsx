@@ -39,24 +39,37 @@ export default function RootLayout({
           toastOptions={{
             duration: 4000,
             style: {
-              background: '#363636',
-              color: '#fff',
+              background: '#1f2937',
+              color: '#f9fafb',
+              fontSize: '14px',
+              fontWeight: '500',
+              borderRadius: '8px',
+              padding: '12px 16px',
+              maxWidth: '400px',
+              width: '100%',
             },
             success: {
               duration: 3000,
               iconTheme: {
                 primary: '#10b981',
-                secondary: '#fff',
+                secondary: '#f9fafb',
               },
             },
             error: {
               duration: 5000,
               iconTheme: {
                 primary: '#ef4444',
-                secondary: '#fff',
+                secondary: '#f9fafb',
               },
             },
           }}
+          containerStyle={{
+            top: 20,
+            right: 20,
+            bottom: 20,
+            left: 20,
+          }}
+          containerClassName="!top-4 !right-4 !left-4 sm:!left-auto sm:!right-4 !bottom-4"
         />
       </body>
     </html>

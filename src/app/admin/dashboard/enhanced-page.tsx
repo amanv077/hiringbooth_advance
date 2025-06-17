@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Briefcase, Building, Shield, CheckCircle, XCircle, Clock4, User, LogOut, Eye } from 'lucide-react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
+import { Button } from '@/components/ui/button';
 
 interface User {
   id: string;
@@ -140,20 +141,24 @@ export default function AdminDashboard() {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(updateData),
-      });
-
-      if (response.ok) {
-        alert('User status updated successfully!');
+      });      if (response.ok) {
+        toast.success('User status updated successfully!', {
+          icon: '✅',
+        });
         fetchUsers(token!);
         setShowUserModal(false);
         setSelectedUser(null);
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to update user status');
+        toast.error(error.error || 'Failed to update user status', {
+          icon: '❌',
+        });
       }
     } catch (error) {
       console.error('Error updating user:', error);
-      alert('Failed to update user status');
+      toast.error('Failed to update user status', {
+        icon: '⚠️',
+      });
     } finally {
       setIsLoading(false);
     }
