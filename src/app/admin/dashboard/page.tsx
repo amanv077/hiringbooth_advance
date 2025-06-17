@@ -8,6 +8,7 @@ import { Users, Briefcase, Building, CheckCircle, XCircle, Clock4, User, LogOut,
 import Link from 'next/link';
 import { Loader } from '@/components/ui/loader';
 import toast from 'react-hot-toast';
+import { stripHtmlTags } from '@/lib/htmlUtils';
 
 interface DashboardStats {
   totalUsers: number;
@@ -779,18 +780,16 @@ export default function AdminDashboard() {
                     <div className="bg-gray-50 p-3 rounded">
                       {selectedUser.userProfile.phone && <p><strong>Phone:</strong> {selectedUser.userProfile.phone}</p>}
                       {selectedUser.userProfile.location && <p><strong>Location:</strong> {selectedUser.userProfile.location}</p>}
-                      {selectedUser.userProfile.experience && <p><strong>Experience:</strong> {selectedUser.userProfile.experience}</p>}
-                      {selectedUser.userProfile.education && <p><strong>Education:</strong> {selectedUser.userProfile.education}</p>}
-                      {selectedUser.userProfile.bio && (
+                      {selectedUser.userProfile.experience && <p><strong>Experience:</strong> <span className="whitespace-pre-wrap">{stripHtmlTags(selectedUser.userProfile.experience)}</span></p>}
+                      {selectedUser.userProfile.education && <p><strong>Education:</strong> {selectedUser.userProfile.education}</p>}                      {selectedUser.userProfile.bio && (
                         <div>
                           <p><strong>Bio:</strong></p>
-                          <p className="text-gray-600 mt-1">{selectedUser.userProfile.bio}</p>
+                          <p className="text-gray-600 mt-1 whitespace-pre-wrap">{stripHtmlTags(selectedUser.userProfile.bio)}</p>
                         </div>
-                      )}
-                      {selectedUser.userProfile.skills && (
+                      )}{selectedUser.userProfile.skills && (
                         <div>
                           <p><strong>Skills:</strong></p>
-                          <p className="text-gray-600 mt-1">{selectedUser.userProfile.skills}</p>
+                          <p className="text-gray-600 mt-1 whitespace-pre-wrap">{stripHtmlTags(selectedUser.userProfile.skills)}</p>
                         </div>
                       )}
                     </div>

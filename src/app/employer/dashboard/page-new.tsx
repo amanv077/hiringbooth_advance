@@ -77,7 +77,9 @@ export default function EmployerDashboard() {
 
   useEffect(() => {
     setIsMounted(true);
-  }, []);  useEffect(() => {
+  }, []);
+
+  useEffect(() => {
     if (isMounted) {
       const token = localStorage.getItem('authToken');
       if (token) {
@@ -88,7 +90,9 @@ export default function EmployerDashboard() {
         router.push('/auth/login');
       }
     }
-  }, [isMounted, router]);  const fetchEmployerProfile = async (token: string) => {
+  }, [isMounted, router]);
+
+  const fetchEmployerProfile = async (token: string) => {
     try {
       const response = await fetch('/api/employer/profile', {
         headers: { 'Authorization': `Bearer ${token}` },
@@ -96,19 +100,16 @@ export default function EmployerDashboard() {
       
       if (response.ok) {
         const data = await response.json();
-        setUser(data.user);
+        setUser(data.employer);
       } else {
-        const errorData = await response.json();
-        console.error('Profile fetch failed:', errorData);
         throw new Error('Failed to fetch profile');
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast.error('Failed to load profile', { icon: '❌' });
-      // Set user to empty object to prevent infinite loading
-      setUser({});
     }
   };
+
   const fetchJobs = async (token: string) => {
     try {
       const response = await fetch('/api/employer/jobs', {
@@ -124,10 +125,9 @@ export default function EmployerDashboard() {
     } catch (error) {
       console.error('Error fetching jobs:', error);
       toast.error('Failed to load jobs', { icon: '❌' });
-      // Set jobs to empty array to prevent loading issues
-      setJobs([]);
     }
   };
+
   const fetchApplications = async (token: string) => {
     try {
       const response = await fetch('/api/employer/applications', {
@@ -143,8 +143,6 @@ export default function EmployerDashboard() {
     } catch (error) {
       console.error('Error fetching applications:', error);
       toast.error('Failed to load applications', { icon: '❌' });
-      // Set applications to empty array to prevent loading issues
-      setApplications([]);
     }
   };
 

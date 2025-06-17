@@ -21,7 +21,6 @@ export function Navbar() {
       setIsLoading(false);
     }
   }, []);
-
   const fetchUserProfile = async (token: string) => {
     try {
       // Try user profile first
@@ -31,7 +30,7 @@ export function Navbar() {
 
       if (response.ok) {
         const data = await response.json();
-        setUser({ ...data.user, role: 'user' });
+        setUser(data.user); // Use the actual role from API
         setIsLoading(false);
         return;
       }
@@ -43,7 +42,7 @@ export function Navbar() {
 
       if (response.ok) {
         const data = await response.json();
-        setUser({ ...data.employer, role: 'employer' });
+        setUser(data.employer); // Use the actual role from API
         setIsLoading(false);
         return;
       }
@@ -70,10 +69,11 @@ export function Navbar() {
   const closeMenu = () => {
     setIsMenuOpen(false);
   };
-
   const getDashboardLink = () => {
     if (!user) return '/';
-    return user.role === 'employer' ? '/employer/dashboard' : '/user/dashboard';
+    if (user.role === 'ADMIN') return '/admin/dashboard';
+    if (user.role === 'EMPLOYER' || user.role === 'employer') return '/employer/dashboard';
+    return '/user/dashboard';
   };
 
   const isActive = (path: string) => {
@@ -115,7 +115,7 @@ export function Navbar() {
               >
                 Browse Jobs
               </Link>
-              {user?.role === 'employer' && (
+              {(user?.role === 'EMPLOYER' || user?.role === 'employer') && (
                 <Link
                   href="/employer/jobs/create"
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -215,7 +215,7 @@ export function Navbar() {
               <Briefcase className="h-4 w-4 mr-2" />
               Browse Jobs
             </Link>
-            {user?.role === 'employer' && (
+            {(user?.role === 'EMPLOYER' || user?.role === 'employer') && (
               <Link
                 href="/employer/jobs/create"
                 onClick={closeMenu}

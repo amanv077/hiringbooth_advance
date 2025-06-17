@@ -35,7 +35,7 @@ export default function RootLayout({
           {children}
         </AuthProvider>
         <Toaster 
-          position="top-right"
+          position="top-center"
           toastOptions={{
             duration: 4000,
             style: {
@@ -45,8 +45,10 @@ export default function RootLayout({
               fontWeight: '500',
               borderRadius: '8px',
               padding: '12px 16px',
-              maxWidth: '400px',
-              width: '100%',
+              maxWidth: 'calc(100vw - 32px)',
+              width: 'auto',
+              minWidth: '200px',
+              wordBreak: 'break-word',
             },
             success: {
               duration: 3000,
@@ -64,12 +66,9 @@ export default function RootLayout({
             },
           }}
           containerStyle={{
-            top: 20,
-            right: 20,
-            bottom: 20,
-            left: 20,
+            zIndex: 9999,
           }}
-          containerClassName="!top-4 !right-4 !left-4 sm:!left-auto sm:!right-4 !bottom-4"
+          containerClassName="!fixed !top-4 !left-1/2 !transform !-translate-x-1/2 !z-[9999] !w-auto !max-w-[calc(100vw-2rem)] !mx-4"
         />
       </body>
     </html>

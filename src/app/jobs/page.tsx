@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import { stripHtmlTags } from '@/lib/htmlUtils';
 
 interface Job {
   id: string;
@@ -326,13 +327,10 @@ export default function JobsPage() {
                       {job.currency === 'USD' ? '$' : '₹'}{job.salaryMin.toLocaleString()} - {job.currency === 'USD' ? '$' : '₹'}{job.salaryMax.toLocaleString()}
                       <span className="text-xs text-gray-500 ml-1">per year</span>
                     </div>
-                  )}
-
-                  {/* Description */}
-                  <div 
-                    className="text-gray-700 text-sm line-clamp-2" 
-                    dangerouslySetInnerHTML={{ __html: job.description }}
-                  />
+                  )}                  {/* Description */}
+                  <div className="text-gray-700 text-sm line-clamp-2">
+                    {stripHtmlTags(job.description)}
+                  </div>
 
                   {/* Skills */}
                   {job.skills && parseSkills(job.skills).length > 0 && (

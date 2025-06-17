@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import { stripHtmlTags } from '@/lib/htmlUtils';
 
 interface Job {
   id: string;
@@ -278,12 +279,10 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
             <Card>
               <CardHeader>
                 <CardTitle>Job Description</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div 
-                  className="prose max-w-none text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: job.description }}
-                />
+              </CardHeader>              <CardContent>
+                <div className="prose max-w-none text-gray-700 whitespace-pre-wrap">
+                  {stripHtmlTags(job.description)}
+                </div>
               </CardContent>
             </Card>
 
@@ -292,12 +291,10 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
               <Card>
                 <CardHeader>
                   <CardTitle>Requirements</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div 
-                    className="prose max-w-none text-gray-700"
-                    dangerouslySetInnerHTML={{ __html: job.requirements }}
-                  />
+                </CardHeader>                <CardContent>
+                  <div className="prose max-w-none text-gray-700 whitespace-pre-wrap">
+                    {stripHtmlTags(job.requirements)}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -307,12 +304,10 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
               <Card>
                 <CardHeader>
                   <CardTitle>Responsibilities</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div 
-                    className="prose max-w-none text-gray-700"
-                    dangerouslySetInnerHTML={{ __html: job.responsibilities }}
-                  />
+                </CardHeader>                <CardContent>
+                  <div className="prose max-w-none text-gray-700 whitespace-pre-wrap">
+                    {stripHtmlTags(job.responsibilities)}
+                  </div>
                 </CardContent>
               </Card>
             )}
