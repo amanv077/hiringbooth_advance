@@ -4,9 +4,10 @@ import jwt from 'jsonwebtoken';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     
     if (!token) {
@@ -26,7 +27,7 @@ export async function GET(
 
     const user = await prisma.user.findUnique({
       where: { 
-        id: params.id,
+        id,
         role: 'USER', // Ensure we only fetch regular users
       },
       include: {
@@ -76,9 +77,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     
     if (!token) {
@@ -101,21 +103,19 @@ export async function PUT(
 
     // Update user basic info
     const updatedUser = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: userData.name,
         email: userData.email,
         isVerified: userData.isVerified,
       },
-    });
-
-    // Update user profile if provided
+    });    // Update user profile if provided
     if (profileData) {
       await prisma.userProfile.upsert({
-        where: { userId: params.id },
+        where: { userId: id },
         update: profileData,
         create: {
-          userId: params.id,
+          userId: id,
           ...profileData,
         },
       });
@@ -123,7 +123,7 @@ export async function PUT(
 
     // Fetch updated user data
     const user = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         userProfile: true,
         applications: {
@@ -167,9 +167,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     
     if (!token) {
@@ -190,7 +191,7 @@ export async function DELETE(
     // Check if user exists and is a regular user
     const user = await prisma.user.findUnique({
       where: { 
-        id: params.id,
+        id,
         role: 'USER', // Only allow deletion of regular users
       },
     });
@@ -201,7 +202,7 @@ export async function DELETE(
 
     // Delete user (cascade will handle related records)
     await prisma.user.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: 'User deleted successfully' });
