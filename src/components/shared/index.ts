@@ -6,3 +6,4 @@ export { FeaturesSection } from './FeaturesSection';
 export { JobCategoriesSection } from './JobCategoriesSection';
 export { HowItWorksSection } from './HowItWorksSection';
 export { CTASection } from './CTASection';
+export { JobSearchBox } from './JobSearchBox';

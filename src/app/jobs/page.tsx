@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { HiringLoader } from '@/components/ui/loader';
-import { Navbar, Footer } from '@/components/shared';
+import { Navbar, Footer, JobSearchBox } from '@/components/shared';
 import { 
   MapPin, 
   Clock, 
@@ -291,6 +291,21 @@ export default function JobsPage() {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [showJobModal, setShowJobModal] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Initialize search from URL parameters
+  useEffect(() => {
+    const titleParam = searchParams.get('title');
+    const locationParam = searchParams.get('location');
+    
+    if (titleParam) {
+      setSearchTerm(titleParam);
+    }
+    if (locationParam) {
+      setLocationFilter(locationParam);
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     fetchJobs();
     checkUserRole();
@@ -495,12 +510,9 @@ export default function JobsPage() {
             </Link>
           </div>
         </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search and Filters */}
+      </div>      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">        {/* Search and Filters */}
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
             <div className="md:col-span-2">
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -530,6 +542,24 @@ export default function JobsPage() {
             >
               <Filter className="h-4 w-4" />
               More Filters
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setSearchTerm('');
+                setLocationFilter('');
+                setTypeFilter('');
+                setExperienceFilter('');
+                setShowFilters(false);
+                // Clear URL params
+                const newUrl = window.location.pathname;
+                window.history.replaceState({}, '', newUrl);
+              }}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+              disabled={!searchTerm && !locationFilter && !typeFilter && !experienceFilter}
+            >
+              <X className="h-4 w-4" />
+              Clear All
             </Button>
           </div>
 
@@ -563,8 +593,7 @@ export default function JobsPage() {
                   <option value="SENIOR_LEVEL">Senior Level</option>
                   <option value="EXECUTIVE">Executive</option>
                 </select>
-              </div>
-            </div>
+              </div>            </div>
           )}
         </div>        {/* Jobs Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

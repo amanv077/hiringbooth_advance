@@ -56,18 +56,14 @@ export default function HomePage() {
     };
 
     checkUserAndRedirect();
-  }, [router]);
-
-  // Show loading state while checking user
+  }, [router]);  // Show loading state while checking user
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     );
-  }
-
-  return (
+  }return (
     <div className="min-h-screen bg-white">
       <Navbar />
       <HeroSection />

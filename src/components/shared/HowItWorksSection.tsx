@@ -31,10 +31,17 @@ export function HowItWorksSection() {
       color: 'bg-orange-600'
     },
   ];
-
   return (
-    <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-50 to-blue-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="relative py-20 lg:py-32 bg-gradient-to-br from-gray-50 to-blue-50 overflow-hidden">
+      {/* Parallax Background Elements */}
+      <div className="absolute inset-0">
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-blue-100/30 to-purple-100/30 transform rotate-12 scale-150"></div>
+        <div className="absolute top-20 right-10 w-64 h-64 bg-blue-200 rounded-full opacity-20 animate-float"></div>
+        <div className="absolute bottom-10 left-10 w-48 h-48 bg-purple-200 rounded-full opacity-20 animate-float-delayed"></div>
+        <div className="absolute top-1/2 left-1/2 w-96 h-2 bg-gradient-to-r from-blue-300 to-purple-300 opacity-30 transform -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
+      </div>
+      
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
             How It Works

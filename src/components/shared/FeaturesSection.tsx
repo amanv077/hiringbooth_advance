@@ -51,9 +51,7 @@ export function FeaturesSection() {
       description: 'Round-the-clock customer support to help you navigate your job search or hiring process.',
       color: 'bg-indigo-50 text-indigo-600'
     },
-  ];
-
-  return (
+  ];  return (
     <section className="py-20 lg:py-32 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
@@ -63,9 +61,7 @@ export function FeaturesSection() {
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             We've built the most comprehensive platform to connect job seekers and employers with cutting-edge features
           </p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        </div>        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
             <Card key={index} className="text-center hover:shadow-xl transition-all duration-300 group border-0 shadow-lg">
               <CardContent className="p-8">
