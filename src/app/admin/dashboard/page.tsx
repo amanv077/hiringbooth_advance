@@ -268,8 +268,13 @@ export default function AdminDashboard() {
                 HiringBooth
               </Link>
               <span className="ml-4 text-gray-600">Admin Dashboard</span>
-            </div>
-            <div className="flex items-center space-x-4">
+            </div>            <div className="flex items-center space-x-4">
+              <Link href="/admin/user-data">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  User Management
+                </Button>
+              </Link>
               <span className="text-gray-700">Welcome, {admin.name}!</span>
               <Button variant="outline" onClick={logout}>
                 <LogOut className="h-4 w-4 mr-2" />
@@ -440,8 +445,7 @@ export default function AdminDashboard() {
 
         {/* Overview Tab */}
         {activeTab === 'overview' && (
-          <div className="space-y-6">
-            <Card>
+          <div className="space-y-6">            <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
               </CardHeader>
@@ -466,6 +470,46 @@ export default function AdminDashboard() {
                   {pendingEmployers.length === 0 && (
                     <p className="text-gray-500 text-center py-4">No pending approvals</p>
                   )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <Link href="/admin/user-data">
+                    <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2 hover:bg-blue-50 hover:border-blue-300">
+                      <Users className="h-6 w-6 text-blue-600" />
+                      <span className="text-sm font-medium">User Data</span>
+                      <span className="text-xs text-gray-500">Manage & Export</span>
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-20 flex flex-col items-center justify-center gap-2 hover:bg-green-50 hover:border-green-300"
+                    onClick={() => setActiveTab('approvals')}
+                  >
+                    <Clock4 className="h-6 w-6 text-green-600" />
+                    <span className="text-sm font-medium">Approvals</span>
+                    <span className="text-xs text-gray-500">{stats.pendingApprovals} pending</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-20 flex flex-col items-center justify-center gap-2 hover:bg-purple-50 hover:border-purple-300"
+                    onClick={() => {
+                      setUsersListType('all');
+                      setShowUsersList(true);
+                      setActiveTab('users-list');
+                    }}
+                  >
+                    <User className="h-6 w-6 text-purple-600" />
+                    <span className="text-sm font-medium">All Users</span>
+                    <span className="text-xs text-gray-500">{stats.totalUsers} total</span>
+                  </Button>
                 </div>
               </CardContent>
             </Card>

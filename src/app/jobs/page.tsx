@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -277,7 +277,7 @@ function JobDetailModal({ job, isOpen, onClose, userRole, onApply, hasApplied }:
   );
 }
 
-export default function JobsPage() {
+function JobsPageContent() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [userApplications, setUserApplications] = useState<any[]>([]);
@@ -794,8 +794,29 @@ export default function JobsPage() {
             handleApplyClick(selectedJob.id);
           }}
           hasApplied={hasAppliedToJob(selectedJob.id)}
-        />
-      )}
+        />      )}
     </div>
+  );
+}
+
+// Loading component for Suspense fallback
+function JobsPageLoading() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-green-50">
+      <Navbar />
+      <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+        <HiringLoader size="xl" />
+      </div>
+      <Footer />
+    </div>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function JobsPage() {
+  return (
+    <Suspense fallback={<JobsPageLoading />}>
+      <JobsPageContent />
+    </Suspense>
   );
 }
